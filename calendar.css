@@ -1,0 +1,339 @@
+/* Main Calendar View */
+#page1-calendar .navbar > .container-fluid > * {
+    align-items: center;
+}
+
+#page1-calendar .navbar-brand {
+    margin: 0;
+    padding: 0;
+}
+
+#page1-calendar .brand {
+    display: flex;
+    flex-direction: row;
+}
+
+#page1-calendar .brand > .navbar-brand {
+    margin-left: 10px;
+}
+
+#page1-calendar .brand > img {
+    height: 50px;
+    width: 50px;
+}
+
+#page1-calendar .calendarTop {
+    display: flex;
+    flex-direction: row;
+}
+
+#page1-calendar .monthButton {
+    background-color: transparent;
+    border: 0;
+}
+
+#page1-calendar #todayHolder {
+    margin-left: 20px;
+}
+
+#page1-calendar #today {
+    border: 1px solid rgb(218,220,224);
+}
+
+#page1-calendar .user, .user > * {
+    margin-right: 10px;
+}
+
+#page1-calendar #month {
+    font-size: 37px;
+}
+
+#page1-calendar #registered-user-dropdown, #logged-out-user-dropdown {
+    display: flex;
+}
+
+#page1-calendar #logged-out-user-dropdown > .navbar-nav > .dropdown > .dropdown-menu {
+    position: absolute;
+    left: -105px;
+}
+
+#page1-calendar table td:hover {
+    background-color: rgba(0, 0, 0, .075);
+}
+
+#page1-calendar table.table.table-bordered {
+    height: 87vh;
+    margin: 0;
+}
+
+#page1-calendar table > * {
+    text-align: center;
+}
+
+#page1-calendar .table-bordered > tbody > tr > td, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > td, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > thead > tr > th {
+    border: 3px solid #dee2e6;
+}
+
+#page1-calendar .table-bordered > thead > tr > th {
+    background-color: #bdbdbd;
+}
+
+#page1-calendar tbody > tr > td {
+    height: 20%;
+    width: 14.2857143%;
+}
+
+#page1-calendar .numEvents {
+    padding: 20px 0 0 0;
+    margin: 0;
+    font-style: italic;
+}
+
+        /* Events List Modal  */
+        #page1-calendar #events > .modal-dialog > .modal-content > .modal-header {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #page1-calendar #events > .modal-dialog > .modal-content > .modal-header > button {
+            display: inline;
+        }
+
+        #page1-calendar #events > .modal-dialog > .modal-content > .modal-body > button {
+            margin-bottom: 16px;
+        }
+
+        #page1-calendar #events > .modal-dialog > .modal-content > .modal-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #page1-calendar #eventsList > li {
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #page1-calendar #eventsList > li:hover {
+            background-color: rgba(0, 0, 0, .075);
+        }
+
+        /* Add Events Form Modal */
+        #page1-calendar #addEventModal > .modal-dialog{
+            max-width: 570px;
+        }
+
+        #page1-calendar #addEventModal > .modal-dialog > .modal-content > .modal-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #page1-calendar #addEventModal > .modal-dialog > .modal-content > .modal-body > button {
+            display: inline;
+            align-self: end;
+            width: 32px;
+            height: 32px;
+            margin: -8px -8px -8px auto;
+        }
+
+        #page1-calendar .addEventTime {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #page1-calendar .addEventTime > p.col-form-label {
+            margin-left: 10px;
+        }
+
+        #page1-calendar .addEventTime > p {
+            height: 100%;
+        }
+
+        #page1-calendar #addEventForm > .row {
+            margin: -1px auto auto auto;
+        }
+
+        #page1-calendar #addEventForm > .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        #page1-calendar #addEventSubmit {
+            margin: 16px auto;
+        }
+
+        /* Display Events Modal */
+        #page1-calendar #displayEventModal > .modal-dialog > .modal-content > .modal-header > .btn {
+            display: inline;
+            align-self: end;
+            margin: -8px 0px 43px auto;
+            padding: 0;
+        }
+
+        #page1-calendar #displayEventModal > .modal-dialog > .modal-content > .modal-header > .btn-close {
+            margin-left: 0px;
+            margin-bottom: 34px;
+        }
+
+        #page1-calendar #displayEventModal > .modal-dialog > .modal-content > .modal-header {
+            background-image: url(static/event-background.png);
+            height: 100px;
+        }
+
+        #page1-calendar #eventCard > p {
+            margin: auto auto 5px 30px;
+            font-style: italic;
+        }
+
+        #page1-calendar #eventTitle {
+            margin-bottom: 10px;
+        }
+
+        #page1-calendar #eventGuestContainer {
+            display: flex;
+            align-items: center;
+            margin-left: 30px;
+        }
+
+        #page1-calendar #eventGuests {
+            margin: auto 10px;
+        }
+
+/* Login & Sign Up Page View */
+#page2-login .navbar,
+#page3-signup .navbar {
+    background-color: rgb(225, 225, 225, 0.5);
+}
+
+#page2-login .navbar-brand,
+#page3-signup .navbar-brand {
+    margin: 0 0 0 10px;
+    padding: 0;
+    font-size:x-large;
+}
+
+#page2-login .brand,
+#page3-signup .brand {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#page2-login .brand > img,
+#page3-signup .brand > img  {
+    width: 50px;
+}
+
+#page2-login .back,
+#page3-signup .back {
+    border: 1px solid rgb(218,220,224);
+    background-color: rgb(189,189,189);
+    margin-right: 20px;
+    width: 100px;
+}
+
+#page2-login .container-fluid.page,
+#page3-signup .container-fluid.page {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+#page2-login .page2body,
+#page3-signup .page2body {
+    display: flex;
+    flex-direction: row;
+}
+
+#page2-login .left-nav{
+    width: 50vw;
+    height: 89.6vh;
+    border-right: 3px solid black;
+    background-image: url(static/login.jpeg);
+    background-size: cover;
+}
+
+#page3-signup .left-nav {
+    width: 50vw;
+    height: 89.6vh;
+    border-right: 3px solid black;
+    background-image: url(static/signup.jpeg);
+    background-size: cover;
+}
+
+#page2-login .right-nav,
+#page3-signup .right-nav {
+    width: 100vh;
+}
+
+#page2-login .right-nav > .login,
+#page3-signup .right-nav > .login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 70%;
+    padding: 5vw;
+}
+
+#page2-login form > *,
+#page3-signup form > * {
+    display: flex;
+    flex-direction: column;
+}
+
+#page2-login form > label,
+#page3-signup form > label {
+    margin: 20px 0 0 0;
+}
+
+#page2-login form > button,
+#page3-signup form > button {
+    border-radius: 10px;
+    width: 100%;
+    height: 30px;
+    margin: 20px 0;
+    background-color: rgb(72, 72, 72);
+    color: rgb(189, 189, 189);
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+#page2-login a,
+#page3-signup a {
+    text-decoration: none;
+    color: black;
+}
+
+#page2-login #back,
+#page3-signup #back {
+    display: flex;
+    text-decoration: none;
+    text-align: center;
+    margin: 0 20px 0 0;
+    border-radius: 10%;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 8px 20px;
+    background-color: rgb(239, 239, 239);
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13.333px;
+}
+
+#page1-calendar #warning-add,
+#page2-login #warning-login,
+#page3-signup #warning-signup {
+    margin-top: 20px;
+    text-align: center;
+    color: rgb(128, 18, 18);
+    font-style: italic;
+    font-weight: normal;
+}
