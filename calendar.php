@@ -120,7 +120,7 @@
                                 <label for="addEvent-title" class="col-form-label">Title</label>
                                 </div>
                                 <div class="col-9">
-                                <input type="text" id="addEvent-title" class="form-control" placeholder="Add Title" required>
+                                <input type="text" id="addEvent-title" class="form-control" placeholder="Add Title" maxLength='30' required>
                                 </div>
                             </div>
                             <!-- Date/Time Field -->
@@ -176,6 +176,9 @@
                             <button id='deleteEvent' type="button" class="btn">
                                 <img src="static/trash.svg" alt="Delete Event">
                             </button>
+                            <button id='editEvent' type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editEventModal">
+                                <img src="static/edit.svg" alt="Edit Event">
+                            </button>
                             <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"></button>
                             
                         </div>
@@ -188,6 +191,74 @@
                                 <img src="static/guests.svg" alt="Guests">
                                 <p id="eventGuests">Miguel, Pedro</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Edit Event Modal -->
+        <div class="modal fade" id="editEventModal">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <!-- warning -->
+                            <div id="warning-edit">
+                                <h6>Warning!</h6>
+                            </div>
+                            <!-- Add Event Form  -->
+                            <form id="editEventForm">
+                                <!-- Title Field -->
+                                <div class="row g-3">
+                                    <div class="col-auto">
+                                    <label for="editEvent-title" class="col-form-label">Title</label>
+                                    </div>
+                                    <div class="col-9">
+                                    <input type="text" id="editEvent-title" class="form-control" placeholder="Add Title" maxLength='30' required>
+                                    </div>
+                                </div>
+                                <!-- Date/Time Field -->
+                                <div class="row g-3">
+                                    <div class="col-auto addEventTime">
+                                        <img src="static/clock.svg" alt="Schedule">
+                                        <p id='editEventFormDate' class="col-form-label">Saturday, January 13 ⋅
+                                            <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
+                                            -
+                                            <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- Add Guests Field -->
+                                <div class="row g-3">
+                                    <div class="col-auto">
+                                        <img src="static/guests.svg" alt="Guests">
+                                    </div>
+                                    <div class="col-9 addEventGuest">
+                                        <input type="text" id="editEvent-guests" class="form-control" placeholder="Add Guests (Comma Separated)">
+                                    </div>
+                                </div>
+                                <!-- Location Field -->
+                                <div class="row g-3">
+                                    <div class="col-auto">
+                                        <img src="static/location.svg" alt="Location">
+                                    </div>
+                                    <div class="col-9 addEventLocation">
+                                        <input type="text" id="editEvent-location" class="form-control" placeholder="Add Location">
+                                    </div>
+                                </div>
+                                <!-- Description Field -->
+                                <div class="row g-3">
+                                    <div class="col-auto">
+                                        <img src="static/description.svg" alt="Description">
+                                    </div>
+                                    <div class="col-9 addEventDescription">
+                                        <input type="text" id="editEvent-description" class="form-control" placeholder="Add Description">
+                                    </div>
+                                </div>
+                                <div class="container">
+                                    <button id="editEventSubmit" type="submit" class="btn btn-sm">Edit Event</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -273,16 +344,16 @@
     <!-- JQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <!-- CSE330S Calendar Library -->
-    <script src="calendar_library.js"></script>
+    <script src="calendar_library.js" type="text/javascript"></script>
     <!-- Calendar Action Handling -->
-    <script src='calendar_events.js'></script>
+    <script src='calendar_events.js' type="text/javascript"></script>
     <!-- User's Account Action Handling -->
-    <script src='user_account.js'></script>
+    <script src='user_account.js' type="text/javascript"></script>
 
     <script>
-        // display current month upon site load
-        currentMonth = new Month(new Date().getFullYear(), new Date().getMonth());
         $(document).ready(function(){
+            // display current month upon site load
+            currentMonth = new Month(new Date().getFullYear(), new Date().getMonth());
             updateCalendar(currentMonth);
             displayPage('#page1-calendar');
         });

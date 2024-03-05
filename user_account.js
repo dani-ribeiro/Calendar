@@ -16,7 +16,13 @@ function resetForms(){
 // check if user is logged in --> if user is logged in --> return username      else: return false (not logged in)
 function checkLoggedIn(){
     return fetch("check_session.php")
-    .then(response => response.json())
+    .then(response => {
+        if(!response.ok){
+            throw new Error("Unsuccessful check logged in");
+        }else{
+            return response.json();
+        }
+    })
     .then(data => {
         if(data.loggedIn){
             return data.username;
@@ -42,7 +48,13 @@ function signup(event) {
             body: JSON.stringify(data),
             headers: {'content-type': 'application/json'}
         })
-        .then(response => response.json())
+        .then(response => {
+            if(!response.ok){
+                throw new Error("Unsuccessful sign up.");
+            }else{
+                return response.json();
+            }
+        })
         .then(data => {
             if(data.success){
                 displayPage('#page1-calendar');
@@ -76,7 +88,13 @@ function login(event) {
             body: JSON.stringify(data),
             headers: {'content-type': 'application/json'}
         })
-        .then(response => response.json())
+        .then(response => {
+            if(!response.ok){
+                throw new Error("Unsuccessful log in.");
+            }else{
+                return response.json();
+            }
+        })
         .then(data => {
             if(data.success){
                 displayPage('#page1-calendar');
@@ -98,12 +116,12 @@ function signout() {
             headers: {'content-type': 'application/json'}
         })
         .then(response => {
-            if(response.ok){
+            if(!response.ok){
+                throw new Error("Unsuccessful sign out.");
+            }else{
                 updateCalendar(currentMonth);
                 $('td').off('click', '#events');
                 displayPage('#page1-calendar');
-            }else{
-                console.log("Error Signing Out");
             }
         })
         .catch(err => console.error(err));

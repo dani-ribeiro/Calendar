@@ -90,6 +90,10 @@
 }
 
         /* Events List Modal  */
+        #page1-calendar #events > .modal-sm {
+            max-width: 400px;
+        }
+
         #page1-calendar #events > .modal-dialog > .modal-content > .modal-header {
             display: flex;
             flex-direction: column;
@@ -120,16 +124,19 @@
         }
 
         /* Add Events Form Modal */
-        #page1-calendar #addEventModal > .modal-dialog{
+        #page1-calendar #addEventModal > .modal-dialog,
+        #page1-calendar #editEventModal > .modal-dialog {
             max-width: 570px;
         }
 
-        #page1-calendar #addEventModal > .modal-dialog > .modal-content > .modal-body {
+        #page1-calendar #addEventModal > .modal-dialog > .modal-content > .modal-body,
+        #page1-calendar #editEventModal > .modal-dialog > .modal-content > .modal-body {
             display: flex;
             flex-direction: column;
         }
 
-        #page1-calendar #addEventModal > .modal-dialog > .modal-content > .modal-body > button {
+        #page1-calendar #addEventModal > .modal-dialog > .modal-content > .modal-body > button,
+        #page1-calendar #editEventModal > .modal-dialog > .modal-content > .modal-body > button {
             display: inline;
             align-self: end;
             width: 32px;
@@ -137,34 +144,41 @@
             margin: -8px -8px -8px auto;
         }
 
-        #page1-calendar .addEventTime {
+        #page1-calendar .addEventTime,
+        #page1-calendar .editEventTime {
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
         }
 
-        #page1-calendar .addEventTime > p.col-form-label {
+        #page1-calendar .addEventTime > p.col-form-label,
+        #page1-calendar .editEventTime > p.col-form-label {
             margin-left: 10px;
         }
 
-        #page1-calendar .addEventTime > p {
+        #page1-calendar .addEventTime > p,
+        #page1-calendar .editEventTime > p {
             height: 100%;
         }
 
-        #page1-calendar #addEventForm > .row {
+        #page1-calendar #addEventForm > .row,
+        #page1-calendar #editEventForm > .row {
             margin: -1px auto auto auto;
         }
 
-        #page1-calendar #addEventForm > .container {
+        #page1-calendar #addEventForm > .container,
+        #page1-calendar #editEventForm > .container {
             display: flex;
             justify-content: center;
             align-items: center;
             margin-top: 4px;
         }
 
-        #page1-calendar #addEventSubmit {
+        #page1-calendar #addEventSubmit,
+        #page1-calendar #editEventSubmit {
             margin: 16px auto;
+            background-color: orange;
         }
 
         /* Display Events Modal */
@@ -173,6 +187,10 @@
             align-self: end;
             margin: -8px 0px 43px auto;
             padding: 0;
+        }
+
+        #page1-calendar #displayEventModal > .modal-dialog > .modal-content > .modal-header > #editEvent {
+            margin-left: 5px;
         }
 
         #page1-calendar #displayEventModal > .modal-dialog > .modal-content > .modal-header > .btn-close {
@@ -328,7 +346,9 @@
     font-size: 13.333px;
 }
 
+
 #page1-calendar #warning-add,
+#page1-calendar #warning-edit,
 #page2-login #warning-login,
 #page3-signup #warning-signup {
     margin-top: 20px;

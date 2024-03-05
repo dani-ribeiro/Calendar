@@ -32,16 +32,26 @@
     }
 
     // filter input
-    if(!preg_match('/^[\w\d\s.,\'";:!?()$%&=\/+-]*$/', $title)                                                      ||
-        !preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:00$/', $timeStart)                              ||
-        ($timeEnd != NULL && !preg_match('/^[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:00]*$/', $timeEnd))       ||
-        ($location != NULL && !preg_match('/^[\w\d\s\',.\-\(\)]+$/', $location))                                    ||
-        ($description != NULL && !preg_match('/^[\w\d\s.,\'";:!?()$%&=\/+-]*$/', $description))){
+    if(!preg_match('/^[\w\d\s.,\'";:!?()$%&=\/+-]*$/', $title)
+        || strlen($title) > 30
+        || !preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:00$/', $timeStart)
+        ||  ($timeEnd != NULL && !preg_match('/^[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:00]*$/', $timeEnd))
+        ||  ($location != NULL && !preg_match('/^[\w\d\s\',.\-\(\)]+$/', $location))
+        ||  ($description != NULL && !preg_match('/^[\w\d\s.,\'";:!?()$%&=\/+-]*$/', $description))){
             echo json_encode(array(
                 "success" => false,
                 "error" => "Invalid"  // Display: Improper Formatting
             ));
             exit;
+    }
+
+    // if (optional) end time is provided, check if end time is before start time (invalid)
+    if ($timeEnd != NULL && strtotime($timeEnd) < strtotime($timeStart)) {
+        echo json_encode(array(
+            "success" => false,
+            "error" => "Invalid"  // Display: Improper Formatting
+        ));
+        exit;
     }
 
     // check if all guests match regex patterns (alphanumeric usernames only)
@@ -76,8 +86,7 @@
     $stmt->close();
 
     echo json_encode(array(
-        "success" => true,
-        'endTime' => $timeEnd
+        "success" => true
     ));
     exit;
 ?>

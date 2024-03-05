@@ -34,18 +34,25 @@ function addEvent(event, date){
         const description = document.getElementById("addEvent-description").value;        // optional
 
         // filter form input
+        const maxTitleLength = 30;
 
         const titleRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
-        if (!titleRegex.test(title)) {
-            $('#warning-add h6').html('Invalid Title');
+        if (!titleRegex.test(title) || title.length > maxTitleLength) {
+            $('#warning-add h6').html('Invalid Title<br>Maximum Character Limit: 30');
             $('#warning-add').show();
-            return;
         }
 
         // [date = YY-MM-DD] + [timeStart = HH:MM] = YY-MM-DD HH:MM:00
         timeStart = String(date + ' ' + timeStart + ':00');
         if(timeEnd){
             timeEnd = String(date + ' ' + timeEnd + ':00');
+
+            // validate end time is after or the same as start time
+            if (new Date(timeEnd) < new Date(timeStart)) {
+                $('#warning-add h6').html('Invalid Event Duration');
+                $('#warning-add').show();
+                return;
+            }
         }
 
         // if a guest list was provided, pass it through a regex and split it.
@@ -90,7 +97,13 @@ function addEvent(event, date){
                 body: JSON.stringify(data),
                 headers: {'content-type': 'application/json'}
             })
-            .then(response => response.json())
+            .then(response => {
+                if(!response.ok){
+                    throw new Error("ERROR: Add Event - Unsuccessful");
+                }else{
+                    return response.json();
+                }
+            })
             .then(data => {
                 if(data.success){
                     // successful add event: reset form --> update calendar --> display calendar
@@ -110,8 +123,6 @@ function addEvent(event, date){
     }else{
         form.reportValidity();
     }
-    
-
 }
 
 // delete only events that the logged in user has created. DO NOT delete events that were shared with the creator (i.e from a friend)
@@ -134,12 +145,171 @@ function deleteEvent(event_id){
     .catch(err => console.error(err));
 }
 
+// edit only events that the logged in user has created. DO NOT edit events that were shared with the creator (i.e from a friend)
+function editEvent(submit, date, event_id){
+    // handle edit event form submission
+    const form = document.getElementById("editEventForm");
+    submit.preventDefault();     // prevent default form refresh upon submission
+    if(form.checkValidity()) {
+        const title = document.getElementById("editEvent-title").value;
+        let timeStart = document.getElementById("editEvent-timeSTART").value;
+        let timeEnd = document.getElementById("editEvent-timeEND").value;                  // optional
+        let guests = document.getElementById("editEvent-guests").value;                    // optional
+        const location = document.getElementById("editEvent-location").value;              // optional
+        const description = document.getElementById("editEvent-description").value;        // optional
+
+        // filter form input
+        const maxTitleLength = 30;
+
+        const titleRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
+        if (!titleRegex.test(title) || title.length > maxTitleLength) {
+            $('#warning-edit h6').html('Invalid Title<br>Maximum Character Limit: 30');
+            $('#warning-edit').show();
+        }
+
+        // date = YYYY-MM-DD HH:MM:DD
+        const dateNoTime = date.substring(0,10);
+        timeStart = String(dateNoTime + ' ' + timeStart + ':00');
+        if(timeEnd){
+            timeEnd = String(dateNoTime + ' ' + timeEnd + ':00');
+
+            // validate end time is after or the same as start time
+            if (new Date(timeEnd) < new Date(timeStart)) {
+                $('#warning-edit h6').html('Invalid Event Duration');
+                $('#warning-edit').show();
+                return;
+            }
+        }
+
+        // if a guest list was provided, pass it through a regex and split it.
+        if(guests){
+            const guestListRegex = /^[A-Za-z0-9]+(?:, [A-Za-z0-9]+)*$/;
+            if (!guestListRegex.test(guests)) {
+                $('#warning-edit h6').html('Improper Formatting<br>Please list guest usernames as comma separated values (Ex: Just, Like, This)');
+                $('#warning-edit').show();
+                return;
+            }
+            guests = guests.split(',').map(guest => guest.trim());
+        }
+
+        if(location){
+            const locationRegex = /^[\w\d\s',.\-\(\)]+$/;
+            if (!locationRegex.test(location)) {
+                $('#warning-edit h6').html('Invalid Location');
+                $('#warning-edit').show();
+                return;
+            }
+        }
+
+        if(description){
+            const descriptionRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
+            if (!descriptionRegex.test(description)) {
+                $('#warning-edit h6').html('Invalid Description');
+                $('#warning-edit').show();
+                return;
+            }
+        }
+
+        const data = {'event_id': event_id,
+                    'title': title,
+                    'timeStart': timeStart,
+                    'timeEnd': timeEnd,
+                    'guests': guests,
+                    'location': location,
+                    'description': description
+                    };
+
+        fetch("edit_event.php", {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {'content-type': 'application/json'}
+            })
+            .then(response => {
+                if(!response.ok){
+                    throw new Error("ERROR: Edit Event - Unsuccessful");
+                }else{
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if(data.success){
+                    // successful add event: reset form --> update calendar --> display calendar
+                    updateCalendar(currentMonth);
+                    $('#editEventModal').modal('hide');
+                    displayPage('#page1-calendar');
+                }else if(data.error === 'Invalid'){
+                    // unsuccessful add event: formatting issue
+                    $('#warning-edit h6').html('Improper Formatting');
+                    $('#warning-edit').show();
+                }else{
+                    console.log(data['error']);
+                    displayPage('#page1-calendar');
+                }
+            })
+            .catch(err => console.error(err));
+    }else{
+        form.reportValidity();
+    }
+}
+
 // select & display all details for a specific event
 function eventDetails(event){
     // if user deletes an event --> disable the event listener & delete the event
+    $('#deleteEvent').off('click');
     $('#deleteEvent').click(function(){
-        $('#deleteEvent').off('click');
         deleteEvent(event['event_id']);
+    });
+
+    // edit events
+    // remove event listener from previous dates
+    $('#editEventSubmit').off('click');
+
+    // editEvent trigger
+    $('#editEventSubmit').click(function(submit){
+        editEvent(submit, event['time_start'], event['event_id']);
+    });
+
+    // if user edits an event --> prefill the edit event modal with the current contents
+    $('#editEventModal').on('show.bs.modal', function(){
+        let title = document.getElementById("editEvent-title");
+        title.value = event['title'];
+        
+        // formats date to WEEKDAY, MONTH DAY ⋅  ex: "Saturday, January 13 ⋅ "
+        let form_date = new Date(event['time_start']);
+        form_date.setDate(form_date.getDate());
+        form_date = form_date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+        });
+        form_date += " ⋅ ";
+
+        $('#editEventFormDate').html(`${form_date}
+                                    <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
+                                    -
+                                    <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)`);
+        
+        let timeStart = document.getElementById("editEvent-timeSTART");
+        timeStart.value = event['time_start'].substring(11,16);     // grab only HH:MM from date string
+
+        let timeEnd = document.getElementById("editEvent-timeEND");     // optional
+        if(event['time_end']){
+            timeEnd.value = event['time_end'].substring(11,16);
+        }
+
+        let guests = document.getElementById("editEvent-guests");       // optional
+        if(event['shared_with']){
+            guests.value = event['shared_with'].split(',').map(guest => guest.trim());
+        }
+
+        let location = document.getElementById("editEvent-location");                // optional
+        if(event['location']){
+            location.value = event['location'];
+        }
+        let description = document.getElementById("editEvent-description");          // optional
+        if(event['description']){
+            description.value = event['description'];
+        }
     });
 
     const eventTitle = document.getElementById('eventTitle');
@@ -181,6 +351,17 @@ function eventDetails(event){
 
     eventDate.innerHTML = `<p id='eventDate'>${dateString}</p>`;
 
+    // the following are optional entries --> only displayed if provided
+    if(!event['description']){
+        $(eventDescription).hide();
+    }
+    if(!event['location']){
+        $(eventLocation).hide();
+    }
+    if(!event['shared_with']){
+        $('#eventGuestContainer').hide();
+    }
+    // set the content elements with empty strings
     eventDescription.textContent = event['description'];
     eventLocation.textContent = event['location'];
     eventGuests.textContent = event['shared_with']
@@ -196,12 +377,19 @@ function loadEvents(username, date){
         body: JSON.stringify(data),
         headers: {'content-type': 'application/json'}
     })
-    .then(response => response.json())
+    .then(response => {
+        if(!response.ok){
+            throw new Error("ERROR: Load Events - Unsuccessful");
+        }else{
+            return response.json();
+        }
+    })
     .then(result => {
         if(result.success){
             const eventsList = document.getElementById('eventsList');
             eventsList.innerHTML = '';
 
+            // add events
             // remove event listener from previous dates
             $('#addEventSubmit').off('click');
 
@@ -211,7 +399,7 @@ function loadEvents(username, date){
                 return;
             });
 
-            $('#addEventModal').on('show.bs.modal', function(event) {
+            $('#addEventModal').on('show.bs.modal', function(){
                 // formats date to WEEKDAY, MONTH DAY ⋅  ex: "Saturday, January 13 ⋅ "
                 let form_date = new Date(date);
                 form_date.setDate(form_date.getDate() + 1);             // adjust for 0-based month indexing
@@ -245,6 +433,11 @@ function loadEvents(username, date){
                 listItem.innerHTML = `<strong>${formatted_time}</strong> ${title}`;
 
                 $(listItem).click(function() {
+                    // unhide the optional elements
+                    $('#eventDescription').show();
+                    $('#eventLocation').show();
+                    $('#eventGuestContainer').show();
+                    // display event card
                     eventDetails(event);
                 });
 
@@ -275,7 +468,13 @@ function countEvents(date, cell, username){
         body: JSON.stringify(data),
         headers: {'content-type': 'application/json'}
     })
-    .then(response => response.json())
+    .then(response => {
+        if(!response.ok){
+            throw new Error("ERROR: Count Events - Unsuccessful");
+        }else{
+            return response.json();
+        }
+    })
     .then(result => {
         if(result.success){
             const day = date.getDate();
@@ -383,7 +582,15 @@ $('#addEvent').click(function(){
     $('#warning-add').hide();
 })
 
+$('#editEvent').click(function(){
+    $('#warning-edit').hide();
+})
+
 $('#addEventModal').on('hidden.bs.modal', function() {
     const addEventForm = document.getElementById("addEventForm");
     addEventForm.reset();
+});
+
+$('#editEventModal').on('hidden.bs.modal', function() {
+    $('#editEventModal').off('show.bs.modal');
 });
