@@ -262,64 +262,71 @@ async function editEvent(submit, date, event_id){
 }
 
 // select & display all details for a specific event
-function eventDetails(event){
-    // if user deletes an event --> disable the event listener & delete the event
+function eventDetails(event, username){
+    // reset event listeners from previous dates
     $('#deleteEvent').off('click');
-    $('#deleteEvent').click(function(){
-        deleteEvent(event['event_id']);
-    });
-
-    // edit events
-    // remove event listener from previous dates
     $('#editEventSubmit').off('click');
 
-    // editEvent trigger
-    $('#editEventSubmit').click(function(submit){
-        editEvent(submit, event['time_start'], event['event_id']);
-    });
-
-    // if user edits an event --> prefill the edit event modal with the current contents
-    $('#editEventModal').on('show.bs.modal', function(){
-        let title = document.getElementById("editEvent-title");
-        title.value = event['title'];
-        
-        // formats date to WEEKDAY, MONTH DAY ∙  ex: "Saturday, January 13 ∙ "
-        let form_date = new Date(event['time_start']);
-        form_date.setDate(form_date.getDate());
-        form_date = form_date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric'
+    // only allow user to edit & delete if they're the original event creator
+    if(event['creator'] === username){
+        $('#deleteEvent').show();
+        $('#editEvent').show();
+        // delete event
+        $('#deleteEvent').click(function(){
+            deleteEvent(event['event_id']);
         });
-        form_date += " ∙ ";
 
-        $('#editEventFormDate').html(`${form_date}
-                                    <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
-                                    -
-                                    <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)`);
-        
-        let timeStart = document.getElementById("editEvent-timeSTART");
-        timeStart.value = event['time_start'].substring(11,16);     // grab only HH:MM from date string
+        // editEvent trigger
+        $('#editEventSubmit').click(function(submit){
+            editEvent(submit, event['time_start'], event['event_id']);
+        });
 
-        let timeEnd = document.getElementById("editEvent-timeEND");     // optional
-        if(event['time_end']){
-            timeEnd.value = event['time_end'].substring(11,16);
-        }
+        // if user edits an event --> prefill the edit event modal with the current contents
+        $('#editEventModal').on('show.bs.modal', function(){
+            let title = document.getElementById("editEvent-title");
+            title.value = event['title'];
+            
+            // formats date to WEEKDAY, MONTH DAY ∙  ex: "Saturday, January 13 ∙ "
+            let form_date = new Date(event['time_start']);
+            form_date.setDate(form_date.getDate());
+            form_date = form_date.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
+            form_date += " ∙ ";
 
-        let guests = document.getElementById("editEvent-guests");       // optional
-        if(event['shared_with']){
-            guests.value = event['shared_with'].split(',').map(guest => guest.trim()).join(', ');
-        }
+            $('#editEventFormDate').html(`${form_date}
+                                        <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
+                                        -
+                                        <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)`);
+            
+            let timeStart = document.getElementById("editEvent-timeSTART");
+            timeStart.value = event['time_start'].substring(11,16);     // grab only HH:MM from date string
 
-        let location = document.getElementById("editEvent-location");                // optional
-        if(event['location']){
-            location.value = event['location'];
-        }
-        let description = document.getElementById("editEvent-description");          // optional
-        if(event['description']){
-            description.value = event['description'];
-        }
-    });
+            let timeEnd = document.getElementById("editEvent-timeEND");     // optional
+            if(event['time_end']){
+                timeEnd.value = event['time_end'].substring(11,16);
+            }
+
+            let guests = document.getElementById("editEvent-guests");       // optional
+            if(event['shared_with']){
+                guests.value = event['shared_with'].split(',').map(guest => guest.trim()).join(', ');
+            }
+
+            let location = document.getElementById("editEvent-location");                // optional
+            if(event['location']){
+                location.value = event['location'];
+            }
+            let description = document.getElementById("editEvent-description");          // optional
+            if(event['description']){
+                description.value = event['description'];
+            }
+        });
+    }else{  // logged in user is NOT the original event creator --> don't let them delete or edit
+        $('#deleteEvent').hide();
+        $('#editEvent').hide();
+    }
 
     const eventTitle = document.getElementById('eventTitle');
     const eventDate = document.getElementById('eventDate');
@@ -446,7 +453,7 @@ function loadEvents(username, date){
                     $('#eventLocation').show();
                     $('#eventGuestContainer').show();
                     // display event card
-                    eventDetails(event);
+                    eventDetails(event, username);
                 });
 
                 eventsList.appendChild(listItem);

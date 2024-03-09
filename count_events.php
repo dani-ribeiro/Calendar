@@ -14,7 +14,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $date = htmlentities($data['date']);
 
 // grab count of events
-$stmt = $mysqli->prepare("SELECT COUNT(*) FROM events WHERE creator = ? AND DATE(time_start) = ?");
+$stmt = $mysqli->prepare("SELECT COUNT(*) FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ?");
 if(!$stmt){
     echo json_encode(array(
 		"success" => false,
@@ -23,7 +23,7 @@ if(!$stmt){
     exit();
 }
 
-$stmt->bind_param('ss', $username, $date);
+$stmt->bind_param('sss', $username, $username, $date);
 $stmt->execute();
 $stmt->bind_result($eventCount);
 $stmt->fetch();
