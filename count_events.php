@@ -1,4 +1,5 @@
 <?php
+ini_set("session.cookie_httponly", 1);
 session_start();
 require 'connection.php';
 
@@ -8,9 +9,9 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-$username = $_SESSION['username'];
+$username = htmlentities($_SESSION['username']);
 $data = json_decode(file_get_contents('php://input'), true);
-$date = $data['date'];
+$date = htmlentities($data['date']);
 
 // grab count of events
 $stmt = $mysqli->prepare("SELECT COUNT(*) FROM events WHERE creator = ? AND DATE(time_start) = ?");
@@ -27,6 +28,9 @@ $stmt->execute();
 $stmt->bind_result($eventCount);
 $stmt->fetch();
 $stmt->close();
+
+// sanitize output
+$eventCount = htmlentities($eventCount);
 
 echo json_encode(array(
     "success" => true,

@@ -1,12 +1,13 @@
 <?php
+ini_set("session.cookie_httponly", 1);
 header("Content-Type: application/json");
 
 // grab POSTed data
 $json_str = file_get_contents('php://input');
 $json_obj = json_decode($json_str, true);
 
-$username = $json_obj['username'];
-$password = $json_obj['password'];
+$username = htmlentities($json_obj['username']);
+$password = htmlentities($json_obj['password']);
 
 // signup & login logic for after user clicks sign up            
 //check if username and password are alphanumeric --> else: try again

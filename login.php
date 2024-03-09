@@ -5,8 +5,8 @@ header("Content-Type: application/json");
 $json_str = file_get_contents('php://input');
 $json_obj = json_decode($json_str, true);
 
-$username = $json_obj['username'];
-$password = $json_obj['password'];
+$username = htmlentities($json_obj['username']);
+$password = htmlentities($json_obj['password']);
 
 // login logic for after user clicks log in
 //check if username and password are alphanumeric --> else: try again
@@ -49,12 +49,14 @@ $stmt->close();
 //  compare submitted password to the actual hashed password
 if($userCount == 1 && password_verify($password, $pwd_hash)){
     // successful login
+    ini_set("session.cookie_httponly", 1);
     session_start();
     $_SESSION['username'] = $username;
     $_SESSION['token'] = bin2hex(random_bytes(32));
 
     // initialize DB connection for registered-users
     require 'connection.php';
+    
     echo json_encode(array(
 		"success" => true
 	));

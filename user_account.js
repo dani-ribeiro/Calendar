@@ -5,6 +5,27 @@
         - Sign Out
         - ...
 */
+// gets CSRF token if user is logged in
+function getToken(){
+    return fetch("check_session.php")
+    .then(response => {
+        if(!response.ok){
+            throw new Error("Unsuccessful get token");
+        }else{
+            return response.json();
+        }
+    })
+    .then(data => {
+        if(data.loggedIn){
+            return data.token;
+        }else{
+            return false;
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+
 // after signing out, logging in, or entering some form data and leaving, make sure to reset the form for next time
 function resetForms(){
     const loginForm = document.getElementById("login-form");

@@ -1,4 +1,5 @@
 <?php
+ini_set("session.cookie_httponly", 1);
 session_start();
 require 'connection.php';
 
@@ -8,9 +9,9 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-$username = $_SESSION['username'];
+$username = htmlentities($_SESSION['username']);
 $data = json_decode(file_get_contents('php://input'), true);
-$date = $data['date'];
+$date = htmlentities($data['date']);
 
 // grab events associated with the user
 $stmt = $mysqli->prepare("SELECT event_id, title, time_start, time_end, description, location, shared_with, creator FROM events WHERE creator = ? AND DATE(time_start) = ? ORDER BY time_start");
@@ -29,7 +30,12 @@ $stmt->close();
 
 $events = array();
 while ($row = $events_result->fetch_assoc()) {
-    $events[] = $row;
+    // sanitize output
+    $sanitizedRow = array();
+    foreach ($row as $key => $value) {
+        $sanitizedRow[$key] = htmlentities($value);
+    }
+    $events[] = $sanitizedRow;
 }
 
 echo json_encode(array(

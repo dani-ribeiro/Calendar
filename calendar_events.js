@@ -21,7 +21,7 @@ monthDict = {
     11: "December"
 }
 
-function addEvent(event, date){
+async function addEvent(event, date){
     // handle add event form submission
     const form = document.getElementById("addEventForm");
     event.preventDefault(); // prevent default form refresh upon submission
@@ -84,12 +84,15 @@ function addEvent(event, date){
             }
         }
 
+        const currentToken = await getToken();
+
         const data = {'title': title,
                     'timeStart': timeStart,
                     'timeEnd': timeEnd,
                     'guests': guests,
                     'location': location,
-                    'description': description
+                    'description': description,
+                    'token': currentToken
                     };
 
         fetch("add_event.php", {
@@ -126,8 +129,11 @@ function addEvent(event, date){
 }
 
 // delete only events that the logged in user has created. DO NOT delete events that were shared with the creator (i.e from a friend)
-function deleteEvent(event_id){
-    const data = {'event_id' : event_id};
+async function deleteEvent(event_id){
+    const currentToken = await getToken();
+    const data = {'event_id': event_id,
+                  'token': currentToken
+                 };
     fetch("delete.php", {
         method: 'POST',
         body: JSON.stringify(data),
@@ -146,7 +152,7 @@ function deleteEvent(event_id){
 }
 
 // edit only events that the logged in user has created. DO NOT edit events that were shared with the creator (i.e from a friend)
-function editEvent(submit, date, event_id){
+async function editEvent(submit, date, event_id){
     // handle edit event form submission
     const form = document.getElementById("editEventForm");
     submit.preventDefault();     // prevent default form refresh upon submission
@@ -210,13 +216,16 @@ function editEvent(submit, date, event_id){
             }
         }
 
+        const currentToken = await getToken();
+
         const data = {'event_id': event_id,
                     'title': title,
                     'timeStart': timeStart,
                     'timeEnd': timeEnd,
                     'guests': guests,
                     'location': location,
-                    'description': description
+                    'description': description,
+                    'token': currentToken
                     };
 
         fetch("edit_event.php", {
@@ -233,7 +242,7 @@ function editEvent(submit, date, event_id){
             })
             .then(data => {
                 if(data.success){
-                    // successful add event: reset form --> update calendar --> display calendar
+                    // successful edit event: reset form --> update calendar --> display calendar
                     updateCalendar(currentMonth);
                     $('#editEventModal').modal('hide');
                     displayPage('#page1-calendar');
@@ -274,7 +283,7 @@ function eventDetails(event){
         let title = document.getElementById("editEvent-title");
         title.value = event['title'];
         
-        // formats date to WEEKDAY, MONTH DAY ⋅  ex: "Saturday, January 13 ⋅ "
+        // formats date to WEEKDAY, MONTH DAY ∙  ex: "Saturday, January 13 ∙ "
         let form_date = new Date(event['time_start']);
         form_date.setDate(form_date.getDate());
         form_date = form_date.toLocaleDateString('en-US', {
@@ -282,7 +291,7 @@ function eventDetails(event){
             month: 'long',
             day: 'numeric'
         });
-        form_date += " ⋅ ";
+        form_date += " ∙ ";
 
         $('#editEventFormDate').html(`${form_date}
                                     <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
@@ -299,7 +308,7 @@ function eventDetails(event){
 
         let guests = document.getElementById("editEvent-guests");       // optional
         if(event['shared_with']){
-            guests.value = event['shared_with'].split(',').map(guest => guest.trim());
+            guests.value = event['shared_with'].split(',').map(guest => guest.trim()).join(', ');
         }
 
         let location = document.getElementById("editEvent-location");                // optional
@@ -328,7 +337,7 @@ function eventDetails(event){
         day: 'numeric'
     });
 
-    let dateString = formatted_date + " ⋅ ";
+    let dateString = formatted_date + " ∙ ";
 
     // formats date to HH:MM AM/PM
     const start_time = start_date.toLocaleTimeString('en-US', {
@@ -364,7 +373,7 @@ function eventDetails(event){
     // set the content elements with empty strings
     eventDescription.textContent = event['description'];
     eventLocation.textContent = event['location'];
-    eventGuests.textContent = event['shared_with']
+    eventGuests.textContent = event['shared_with'].split(',').join(', ');
 }
 
 // select & display all events on a certain date associated with the logged in user
@@ -400,7 +409,7 @@ function loadEvents(username, date){
             });
 
             $('#addEventModal').on('show.bs.modal', function(){
-                // formats date to WEEKDAY, MONTH DAY ⋅  ex: "Saturday, January 13 ⋅ "
+                // formats date to WEEKDAY, MONTH DAY ∙  ex: "Saturday, January 13 ∙ "
                 let form_date = new Date(date);
                 form_date.setDate(form_date.getDate() + 1);             // adjust for 0-based month indexing
                 form_date = form_date.toLocaleDateString('en-US', {
@@ -408,7 +417,7 @@ function loadEvents(username, date){
                     month: 'long',
                     day: 'numeric'
                 });
-                form_date += " ⋅ ";
+                form_date += " ∙ ";
 
                 $('#addEventFormDate').html(`${form_date}
                                             <input type="time" id="addEvent-timeSTART" class="form-control-sm" required>
@@ -417,7 +426,6 @@ function loadEvents(username, date){
             });
 
             result.events.forEach(event => {
-                // const event_id = event['event_id'];
                 const title = event['title'];
                 const start_time = new Date(event['time_start']);
                 // formats the string from date to HH:MM AM/PM
@@ -592,5 +600,7 @@ $('#addEventModal').on('hidden.bs.modal', function() {
 });
 
 $('#editEventModal').on('hidden.bs.modal', function() {
+    const editEventForm = document.getElementById("editEventForm");
+    editEventForm.reset();
     $('#editEventModal').off('show.bs.modal');
 });

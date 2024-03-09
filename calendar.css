@@ -175,7 +175,10 @@
             margin-top: 4px;
         }
 
-        #page1-calendar #addEventSubmit,
+        #page1-calendar #addEventSubmit {
+            margin: 16px auto;
+        }
+        
         #page1-calendar #editEventSubmit {
             margin: 16px auto;
             background-color: orange;

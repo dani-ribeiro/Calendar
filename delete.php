@@ -1,4 +1,5 @@
 <?php
+    ini_set("session.cookie_httponly", 1);
     session_start();
     require 'connection.php';
 
@@ -8,26 +9,28 @@
         exit();
     }
 
-    $username = $_SESSION['username'];
+    $username = htmlentities($_SESSION['username']);
     $data = json_decode(file_get_contents('php://input'), true);
-    $event_id = $data['event_id'];
+    if(hash_equals($_SESSION['token'], $data['token'])){
+        $event_id = htmlentities($data['event_id']);
 
-    // grab count of events
-    $stmt = $mysqli->prepare("DELETE FROM events WHERE creator = ? AND event_id = ?");
-    if(!$stmt){
+        // grab count of events
+        $stmt = $mysqli->prepare("DELETE FROM events WHERE creator = ? AND event_id = ?");
+        if(!$stmt){
+            echo json_encode(array(
+                "success" => false,
+                "error" => "Query Preparation Failed: " . $mysqli->error
+            ));
+            exit();
+        }
+
+        $stmt->bind_param('si', $username, $event_id);
+        $stmt->execute();
+        $stmt->close();
+
         echo json_encode(array(
-            "success" => false,
-            "error" => "Query Preparation Failed: " . $mysqli->error
+            "success" => true
         ));
-        exit();
+        exit;
     }
-
-    $stmt->bind_param('si', $username, $event_id);
-    $stmt->execute();
-    $stmt->close();
-
-    echo json_encode(array(
-        "success" => true
-    ));
-    exit;
 ?>
