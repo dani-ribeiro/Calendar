@@ -37,7 +37,7 @@
                 <div id="registered-user-dropdown">
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">username</a>
+                            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">_</a>
                             <ul class="dropdown-menu">
                                 <li><a id="signout" class="dropdown-item">Sign Out</a></li>
                             </ul>
@@ -87,16 +87,12 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        <h1 id='eventDayAbbreviated' class="modal-title fs-5">FRI</h1>
-                        <h2 id='eventDay'>13</h2>
+                        <h1 id='eventDayAbbreviated' class="modal-title fs-5">_</h1>
+                        <h2 id='eventDay'>_</h2>
                     </div>
                     <div class="modal-body">
                         <button id="addEvent" type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">Add Event</button>
                         <ul id="eventsList">
-                            <li data-bs-toggle="modal" data-bs-target="#displayEventModal"><strong>12:30 PM </strong>Meeting</li>
-                            <li><strong>3:20 PM </strong>Meeting</li>
-                            <li><strong>5:30 PM </strong>i have a lot of stuff to do so i will type it all here for some reason</li>
-                            <li><strong>7:20 PM </strong>Meeting</li>
                         </ul>
                     </div>
                 </div>
@@ -128,7 +124,7 @@
                             <div class="row g-3">
                                 <div class="col-auto addEventTime">
                                     <img src="static/clock.svg" alt="Schedule">
-                                    <p id='addEventFormDate' class="col-form-label">Saturday, January 13 ∙
+                                    <p id='addEventFormDate' class="col-form-label">WEEKDAY, MONTH DAY ∙
                                         <input type="time" id="addEvent-timeSTART" class="form-control-sm" required>
                                         -
                                         <input type="time" id="addEvent-timeEND" class="form-control-sm"> (Optional)
@@ -184,13 +180,13 @@
                             
                         </div>
                         <div class="modal-body" id="eventCard">
-                            <h1 class="modal-title fs-5" id="eventTitle">Meeting</h1>
-                            <p id="eventDate">Saturday, January 13 ∙ 12:30 PM - 1:30 PM</p>
-                            <p id="eventDescription">Meeting w/ Daniel</p>
-                            <p id="eventLocation">20 W 34th St., New York, NY 10001</p>
+                            <h1 class="modal-title fs-5" id="eventTitle">_</h1>
+                            <p id="eventDate">WEEKDAY, MONTH DAY ∙ __:__ PM - _:__ PM</p>
+                            <p id="eventDescription">_</p>
+                            <p id="eventLocation">_</p>
                             <div id="eventGuestContainer">
                                 <img src="static/guests.svg" alt="Guests">
-                                <p id="eventGuests">Miguel, Pedro</p>
+                                <p id="eventGuests">_</p>
                             </div>
                         </div>
                     </div>
@@ -222,7 +218,7 @@
                                 <div class="row g-3">
                                     <div class="col-auto addEventTime">
                                         <img src="static/clock.svg" alt="Schedule">
-                                        <p id='editEventFormDate' class="col-form-label">Saturday, January 13 ∙
+                                        <p id='editEventFormDate' class="col-form-label">WEEKDAY, MONTH DAY ∙
                                             <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
                                             -
                                             <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)
