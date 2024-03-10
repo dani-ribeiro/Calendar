@@ -36,7 +36,17 @@
     margin-left: 20px;
 }
 
-#page1-calendar #today {
+#page1-calendar #tagsHolder {
+    margin-right: 200px;
+}
+
+.dropdown-item.active {
+    background-color: rgb(216,84,68);
+}
+
+
+#page1-calendar #today,
+#page1-calendar #calendarTags {
     border: 1px solid rgb(218,220,224);
 }
 
@@ -87,6 +97,15 @@
     padding: 20px 0 0 0;
     margin: 0;
     font-style: italic;
+}
+
+#tag-field {
+    display: flex;
+    flex-direction: row;
+}
+
+.form-check-inline {
+    margin-left: 20px;
 }
 
         /* Events List Modal  */
@@ -215,13 +234,16 @@
             margin-bottom: 10px;
         }
 
-        #page1-calendar #eventGuestContainer {
+        #page1-calendar #eventGuestContainer,
+        #page1-calendar #eventTagContainer {
             display: flex;
             align-items: center;
             margin-left: 30px;
+            margin-bottom: 5px;
         }
 
-        #page1-calendar #eventGuests {
+        #page1-calendar #eventGuests,
+        #page1-calendar #eventTag {
             margin: auto 10px;
         }
 
@@ -348,7 +370,6 @@
     font-family: Arial, Helvetica, sans-serif;
     font-size: 13.333px;
 }
-
 
 #page1-calendar #warning-add,
 #page1-calendar #warning-edit,

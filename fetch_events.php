@@ -14,7 +14,7 @@ $data = json_decode(file_get_contents('php://input'), true);
 $date = htmlentities($data['date']);
 
 // grab events associated with the user
-$stmt = $mysqli->prepare("SELECT event_id, title, time_start, time_end, description, location, shared_with, creator FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ? ORDER BY time_start");
+$stmt = $mysqli->prepare("SELECT event_id, title, time_start, time_end, description, location, shared_with, creator, tag FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ? ORDER BY time_start");
 if(!$stmt){
     echo json_encode(array(
 		"success" => false,

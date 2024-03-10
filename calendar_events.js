@@ -21,6 +21,16 @@ monthDict = {
     11: "December"
 }
 
+// toggle event listeners for calendar tag views
+const allTags = document.querySelectorAll(".dropdown-menu .dropdown-item");
+allTags.forEach(tag => {
+    tag.addEventListener("click", function() {
+        tag.classList.toggle("active");
+        updateCalendar(currentMonth);
+        displayPage('#page1-calendar');
+    });
+});
+
 async function addEvent(event, date){
     // handle add event form submission
     const form = document.getElementById("addEventForm");
@@ -32,6 +42,7 @@ async function addEvent(event, date){
         let guests = document.getElementById("addEvent-guests").value;                    // optional
         const location = document.getElementById("addEvent-location").value;              // optional
         const description = document.getElementById("addEvent-description").value;        // optional
+        const tagSelected = document.querySelector("input[name='addTagOptions']:checked") ? document.querySelector("input[name='addTagOptions']:checked").value : null;   // optional
 
         // filter form input
         const maxTitleLength = 30;
@@ -92,6 +103,7 @@ async function addEvent(event, date){
                     'guests': guests,
                     'location': location,
                     'description': description,
+                    'tag': tagSelected,
                     'token': currentToken
                     };
 
@@ -163,6 +175,7 @@ async function editEvent(submit, date, event_id){
         let guests = document.getElementById("editEvent-guests").value;                    // optional
         const location = document.getElementById("editEvent-location").value;              // optional
         const description = document.getElementById("editEvent-description").value;        // optional
+        const tagSelected = document.querySelector("input[name='editTagOptions']:checked") ? document.querySelector("input[name='editTagOptions']:checked").value : null;   // optional
 
         // filter form input
         const maxTitleLength = 30;
@@ -225,6 +238,7 @@ async function editEvent(submit, date, event_id){
                     'guests': guests,
                     'location': location,
                     'description': description,
+                    'tag': tagSelected,
                     'token': currentToken
                     };
 
@@ -318,6 +332,7 @@ function eventDetails(event, username){
             if(event['location']){
                 location.value = event['location'];
             }
+            
             let description = document.getElementById("editEvent-description");          // optional
             if(event['description']){
                 description.value = event['description'];
@@ -332,6 +347,7 @@ function eventDetails(event, username){
     const eventDate = document.getElementById('eventDate');
     const eventDescription = document.getElementById('eventDescription');
     const eventLocation = document.getElementById('eventLocation');
+    const eventTag = document.getElementById('eventTag');
     const eventGuests = document.getElementById('eventGuests');
 
     eventTitle.textContent = event['title'];
@@ -374,12 +390,16 @@ function eventDetails(event, username){
     if(!event['location']){
         $(eventLocation).hide();
     }
+    if(!event['tag']){
+        $('#eventTagContainer').hide();
+    }
     if(!event['shared_with']){
         $('#eventGuestContainer').hide();
     }
     // set the content elements with empty strings
     eventDescription.textContent = event['description'];
     eventLocation.textContent = event['location'];
+    eventTag.textContent = event['tag'];
     eventGuests.textContent = event['shared_with'].split(',').join(', ');
 }
 
@@ -451,6 +471,7 @@ function loadEvents(username, date){
                     // unhide the optional elements
                     $('#eventDescription').show();
                     $('#eventLocation').show();
+                    $('#eventTagContainer').show();
                     $('#eventGuestContainer').show();
                     // display event card
                     eventDetails(event, username);
@@ -473,10 +494,11 @@ function formatDate(date) {
 }
 
 // count & display number of events for a specific date (cell) in the current calendar view
-function countEvents(date, cell, username){
+function countEvents(date, cell, username, activeTags = []){
     const formattedDate = formatDate(date);
     const data = {'username' : username,
-                'date': formattedDate
+                'date': formattedDate,
+                'tags': activeTags
                 }
     fetch("count_events.php", {
         method: 'POST',
@@ -547,7 +569,15 @@ async function loadCalendar(month) {
                 if(usernameResult != false){
                     cell.setAttribute("data-bs-toggle", "modal");
                     cell.setAttribute("data-bs-target", "#events");
-                    countEvents(date, cell, usernameResult);
+
+                    // get the user's toggled tags
+                    let activeTags = [];
+                    allTags.forEach(tag => {
+                        if (tag.classList.contains('active')) {
+                            activeTags.push(tag.textContent);
+                        }
+                    });
+                    countEvents(date, cell, usernameResult, activeTags);
                 }
             }
             row.appendChild(cell);

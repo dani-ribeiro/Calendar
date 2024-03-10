@@ -155,7 +155,7 @@ async function displayDashboard() {
         if(loggedIn != false){
             $('#logged-out-user-dropdown').hide();
             $('#registered-user-dropdown').show();
-            $('#registered-user-dropdown .dropdown-toggle').text(loggedIn); // update username in dropdown
+            $('#registered-user-dropdown .nav-link.dropdown-toggle').text(loggedIn); // update username in dropdown
         }else{
             $('#registered-user-dropdown').hide();
             $('#logged-out-user-dropdown').show();

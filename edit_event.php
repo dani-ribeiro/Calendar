@@ -46,12 +46,14 @@
         $guests = $data['guests'];
         $location = htmlentities($data['location']);
         $description = htmlentities($data['description']);
+        $tag = htmlentities($data['tag']);
 
         // correct empty (optional) inputs for DB query
         $timeEnd = empty($timeEnd) ? NULL : $timeEnd;
         $guests = empty($guests) ? NULL : $guests;
         $location = empty($location) ? NULL : $location;
         $description = empty($description) ? NULL : $description;
+        $tag = empty($tag) ? NULL : $tag;
 
         // filter input
         if(!preg_match('/^[\w\d\s.,\'";:!?()$%&=\/+-]*$/', $title)
@@ -88,7 +90,7 @@
         }
 
         // edit event
-        $stmt = $mysqli->prepare("UPDATE events SET title=?, description=?, time_start=?, time_end=?, location=?, shared_with=? WHERE event_id=?");
+        $stmt = $mysqli->prepare("UPDATE events SET title=?, description=?, time_start=?, time_end=?, location=?, shared_with=?, tag=? WHERE event_id=?");
         if(!$stmt){
             echo json_encode(array(
                 "success" => false,
@@ -103,7 +105,7 @@
         }
 
 
-        $stmt->bind_param('ssssssi', $title, $description, $timeStart, $timeEnd, $location, $guests, $event_id);
+        $stmt->bind_param('sssssssi', $title, $description, $timeStart, $timeEnd, $location, $guests, $tag, $event_id);
         $stmt->execute();
         $stmt->close();
 

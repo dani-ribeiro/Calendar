@@ -18,6 +18,7 @@
         $guests = $data['guests'];
         $location = htmlentities($data['location']);
         $description = htmlentities($data['description']);
+        $tag = htmlentities($data['tag']);
 
         // correct empty (optional) inputs for DB query
         if(empty($timeEnd)){
@@ -31,6 +32,9 @@
         }
         if(empty($description)){
             $description = NULL;
+        }
+        if(empty($tag)){
+            $tag = NULL;
         }
 
         // filter input
@@ -68,7 +72,7 @@
         }
 
         // add event
-        $stmt = $mysqli->prepare("INSERT INTO events (creator, title, description, time_start, time_end, location, shared_with) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $mysqli->prepare("INSERT INTO events (creator, title, description, time_start, time_end, location, shared_with, tag) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         if(!$stmt){
             echo json_encode(array(
                 "success" => false,
@@ -83,7 +87,7 @@
         }
 
 
-        $stmt->bind_param('sssssss', $username, $title, $description, $timeStart, $timeEnd, $location, $guests);
+        $stmt->bind_param('ssssssss', $username, $title, $description, $timeStart, $timeEnd, $location, $guests, $tag);
         $stmt->execute();
         $stmt->close();
 

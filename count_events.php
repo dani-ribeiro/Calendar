@@ -12,9 +12,20 @@ if (!isset($_SESSION['username'])) {
 $username = htmlentities($_SESSION['username']);
 $data = json_decode(file_get_contents('php://input'), true);
 $date = htmlentities($data['date']);
+$tags = $data['tags'];
+
+// if there are active tags --> build query
+$tagQuery = '';
+if (!empty($tags)) {
+    $tagQuery = 'AND (';
+    foreach ($tags as $index => $tag) {
+        $tagQuery .= ($index > 0 ? ' OR ' : '') . 'tag = ?';
+    }
+    $tagQuery .= ')';
+}
 
 // grab count of events
-$stmt = $mysqli->prepare("SELECT COUNT(*) FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ?");
+$stmt = $mysqli->prepare("SELECT COUNT(*) FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ? $tagQuery");
 if(!$stmt){
     echo json_encode(array(
 		"success" => false,
@@ -23,7 +34,17 @@ if(!$stmt){
     exit();
 }
 
-$stmt->bind_param('sss', $username, $username, $date);
+if (!empty($tags)) {
+    $paramString = 'sss';
+    // Add 's' for each tag
+    $paramString .= str_repeat('s', count($tags));
+    // Create an array with all parameters to bind
+    $params = array_merge([$username, $username, $date], $tags);
+    // Bind parameters
+    $stmt->bind_param($paramString, ...$params);
+} else {
+    $stmt->bind_param('sss', $username, $username, $date);
+}
 $stmt->execute();
 $stmt->bind_result($eventCount);
 $stmt->fetch();
