@@ -22,7 +22,7 @@ monthDict = {
 }
 
 // toggle event listeners for calendar tag views
-const allTags = document.querySelectorAll(".dropdown-menu .dropdown-item");
+const allTags = document.querySelectorAll(".tagsDropdown .dropdown-item");
 allTags.forEach(tag => {
     tag.addEventListener("click", function() {
         tag.classList.toggle("active");
@@ -404,9 +404,10 @@ function eventDetails(event, username){
 }
 
 // select & display all events on a certain date associated with the logged in user
-function loadEvents(username, date){
+function loadEvents(username, date, activeTags = []){
     const data = {'username' : username,
-                    'date': date
+                    'date': date,
+                    'tags': activeTags
                     };
     fetch("fetch_events.php", {
         method: 'POST',
@@ -528,7 +529,7 @@ function countEvents(date, cell, username, activeTags = []){
                     const dayOfWeek = $('#daysOfWeek th').eq(colIndex).text();
                     document.getElementById('eventDayAbbreviated').textContent = dayOfWeek;
                     // load the event modal for the clicked day
-                    loadEvents(username, formattedDate);
+                    loadEvents(username, formattedDate, activeTags);
                 });
             }
         }

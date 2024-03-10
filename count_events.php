@@ -4,7 +4,7 @@ session_start();
 require 'connection.php';
 
 // unregistered users shouldn't make it this far, but if they do, ensure they see NO events.
-if (!isset($_SESSION['username'])) {
+if(!isset($_SESSION['username'])){
     echo json_encode([]);
     exit();
 }
@@ -16,9 +16,9 @@ $tags = $data['tags'];
 
 // if there are active tags --> build query
 $tagQuery = '';
-if (!empty($tags)) {
+if(!empty($tags)){
     $tagQuery = 'AND (';
-    foreach ($tags as $index => $tag) {
+    foreach ($tags as $index => $tag){
         $tagQuery .= ($index > 0 ? ' OR ' : '') . 'tag = ?';
     }
     $tagQuery .= ')';
@@ -35,12 +35,12 @@ if(!$stmt){
 }
 
 // dynamically bind tags
-if (!empty($tags)) {
+if(!empty($tags)){
     $paramString = 'sss';
     $paramString .= str_repeat('s', count($tags));
     $params = array_merge([$username, $username, $date], $tags);
     $stmt->bind_param($paramString, ...$params);
-} else {
+}else{
     $stmt->bind_param('sss', $username, $username, $date);
 }
 $stmt->execute();

@@ -40,8 +40,12 @@
     margin-right: 200px;
 }
 
-.dropdown-item.active {
+#page1-calendar .tagsDropdown .dropdown-item.active {
     background-color: rgb(216,84,68);
+}
+
+#page1-calendar .tagsDropdown {
+    --bs-dropdown-link-active-bg: rgb(216,84,68);
 }
 
 
