@@ -34,13 +34,11 @@ if(!$stmt){
     exit();
 }
 
+// dynamically bind tags
 if (!empty($tags)) {
     $paramString = 'sss';
-    // Add 's' for each tag
     $paramString .= str_repeat('s', count($tags));
-    // Create an array with all parameters to bind
     $params = array_merge([$username, $username, $date], $tags);
-    // Bind parameters
     $stmt->bind_param($paramString, ...$params);
 } else {
     $stmt->bind_param('sss', $username, $username, $date);
