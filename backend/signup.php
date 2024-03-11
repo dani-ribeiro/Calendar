@@ -2,7 +2,7 @@
 ini_set("session.cookie_httponly", 1);
 header("Content-Type: application/json");
 
-// grab POSTed data
+// grabs POSTed data
 $json_str = file_get_contents('php://input');
 $json_obj = json_decode($json_str, true);
 
@@ -10,7 +10,7 @@ $username = htmlentities($json_obj['username']);
 $password = htmlentities($json_obj['password']);
 
 // signup & login logic for after user clicks sign up            
-//check if username and password are alphanumeric --> else: try again
+//checks if username and password are alphanumeric --> else: try again
 if(!preg_match('/^[A-Za-z0-9]+$/', $username) || !preg_match('/^[A-Za-z0-9]+$/', $password) ){
     echo json_encode(array(
 		"success" => false,
@@ -44,7 +44,7 @@ $stmt->bind_result($userCount);
 $stmt->fetch();
 $stmt->close();
 
-//check if username already exists --> try again. else: create account!
+//checks if username already exists --> try again. else: create account!
 if($userCount == 0){
     //new user! salt hash password & create account
     $hash_pwd = password_hash($password, PASSWORD_BCRYPT);
@@ -64,7 +64,7 @@ if($userCount == 0){
     $_SESSION['username'] = $username;
     $_SESSION['token'] = bin2hex(random_bytes(32));
 
-    // initialize DB connection for registered-users
+    // initializes DB connection for registered-users
     require 'connection.php';
     echo json_encode(array(
 		"success" => true

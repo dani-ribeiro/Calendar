@@ -5,6 +5,7 @@
         - Sign Out
         - ...
 */
+
 // gets CSRF token if user is logged in
 function getToken(){
     return fetch("backend/check_session.php")
@@ -26,7 +27,8 @@ function getToken(){
 }
 
 
-// after signing out, logging in, or entering some form data and leaving, make sure to reset the form for next time
+// pre: user signs out, logs in, or enters some form data and leaves without submitting
+// post: resets form to blank state
 function resetForms(){
     const loginForm = document.getElementById("login-form");
     const signupForm = document.getElementById("signup-form");
@@ -34,7 +36,7 @@ function resetForms(){
     signupForm.reset();
 }
 
-// check if user is logged in --> if user is logged in --> return username      else: return false (not logged in)
+// checks if user is logged in --> returns username if logged in     else: return false (not logged in)
 function checkLoggedIn(){
     return fetch("backend/check_session.php")
     .then(response => {
@@ -54,7 +56,7 @@ function checkLoggedIn(){
     .catch(err => console.error(err));
 }
 
-// handle sign up form submission
+// handles sign up form submission
 function signup(event) {
     const username = document.getElementById("signup-username").value;
     const password = document.getElementById("signup-password").value;
@@ -94,7 +96,7 @@ function signup(event) {
     return false; // prevent default form submission behavior
 }
 
-// handle log in form submission
+// handles log in form submission
 function login(event) {
     const username = document.getElementById("login-username").value;
     const password = document.getElementById("login-password").value;
@@ -130,7 +132,7 @@ function login(event) {
         .catch(err => console.error(err));
 }
 
-// handle sign out
+// handles sign out
 function signout() {
     fetch("backend/signout.php", {
             method: 'POST',
@@ -148,7 +150,7 @@ function signout() {
         .catch(err => console.error(err));
 }
 
-// if user is logged in --> display registered-user dashboard     else: logged-out-user dashboard
+// displays registered-user dashboard if the user is logged in      else: displays logged-out-user dashboard
 async function displayDashboard() {
     try {
         const loggedIn = await checkLoggedIn();
@@ -165,7 +167,7 @@ async function displayDashboard() {
     }
 }
 
-// hide all pages EXCEPT the page to display
+// hides all pages EXCEPT the page to display
 function displayPage(pageID) {
     $('#page1-calendar, #page2-login, #page3-signup').hide();
     if(pageID === '#page1-calendar'){
@@ -173,6 +175,8 @@ function displayPage(pageID) {
     }
     $(pageID).show();
 }
+
+// additional event listeners
 
 $('#dropdownSignup').click(function(){
     $('#warning-signup').hide();

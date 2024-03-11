@@ -20,24 +20,14 @@
         $description = htmlentities($data['description']);
         $tag = htmlentities($data['tag']);
 
-        // correct empty (optional) inputs for DB query
-        if(empty($timeEnd)){
-            $timeEnd = NULL;
-        }
-        if(empty($guests)){
-            $guests = NULL;
-        }
-        if(empty($location)){
-            $location = NULL;
-        }
-        if(empty($description)){
-            $description = NULL;
-        }
-        if(empty($tag)){
-            $tag = NULL;
-        }
+        // corrects empty (optional) inputs for DB query
+        $timeEnd = empty($timeEnd) ? NULL : $timeEnd;
+        $guests = empty($guests) ? NULL : $guests;
+        $location = empty($location) ? NULL : $location;
+        $description = empty($description) ? NULL : $description;
+        $tag = empty($tag) ? NULL : $tag;
 
-        // filter input
+        // filters input
         if(!preg_match('/^[\w\d\s.,\'";:!?()$%&=\/+-]*$/', $title)
             || strlen($title) > 30
             || !preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:00$/', $timeStart)
@@ -51,7 +41,7 @@
                 exit;
         }
 
-        // if (optional) end time is provided, check if end time is before start time (invalid)
+        // if (optional) end time is provided, checks if end time is before start time (invalid)
         if ($timeEnd != NULL && strtotime($timeEnd) < strtotime($timeStart)) {
             echo json_encode(array(
                 "success" => false,
@@ -60,7 +50,7 @@
             exit;
         }
 
-        // check if all guests match regex patterns (alphanumeric usernames only)
+        // checks if all guests match regex patterns (alphanumeric usernames only)
         foreach($guests as $guest){
             if(!preg_match('/^[A-Za-z0-9]+$/', $guest)){
                 echo json_encode(array(
@@ -71,7 +61,7 @@
             }
         }
 
-        // add event
+        // adds event
         $stmt = $mysqli->prepare("INSERT INTO events (creator, title, description, time_start, time_end, location, shared_with, tag) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         if(!$stmt){
             echo json_encode(array(
@@ -81,7 +71,7 @@
             exit();
         }
 
-        // recombine guest list as 1 string "name, name, name, ..." or empty string (event not shared with anyone)
+        // recombines guest list as 1 string "name, name, name, ..." or empty string (event not shared with anyone)
         if($guests != NULL){
             $guests = join(',', $guests);
         }

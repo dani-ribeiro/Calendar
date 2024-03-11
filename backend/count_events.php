@@ -14,7 +14,8 @@ $data = json_decode(file_get_contents('php://input'), true);
 $date = htmlentities($data['date']);
 $tags = $data['tags'];
 
-// if there are active tags --> build query
+
+// builds query if there are actively toggled tags
 $tagQuery = '';
 if(!empty($tags)){
     $tagQuery = 'AND (';
@@ -24,7 +25,7 @@ if(!empty($tags)){
     $tagQuery .= ')';
 }
 
-// grab count of events
+// grabs count of events
 $stmt = $mysqli->prepare("SELECT COUNT(*) FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ? $tagQuery");
 if(!$stmt){
     echo json_encode(array(
@@ -34,7 +35,7 @@ if(!$stmt){
     exit();
 }
 
-// dynamically bind tags
+// dynamically binds tags (since there could be 0, 1, 2, or 3 tags actively toggled)
 if(!empty($tags)){
     $paramString = 'sss';
     $paramString .= str_repeat('s', count($tags));

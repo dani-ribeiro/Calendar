@@ -15,7 +15,7 @@ if(hash_equals($_SESSION['token'], $data['token'])){
     $date = htmlentities($data['date']);
     $tags = $data['tags'];
 
-    // if there are active tags --> build query
+    // builds query if there are actively toggled tags
     $tagQuery = '';
     if(!empty($tags)){
         $tagQuery = 'AND (';
@@ -25,7 +25,7 @@ if(hash_equals($_SESSION['token'], $data['token'])){
         $tagQuery .= ')';
     }
 
-    // grab events associated with the user
+    // grabs events associated with the user
     $stmt = $mysqli->prepare("SELECT event_id, title, time_start, time_end, description, location, shared_with, creator, tag FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ? $tagQuery ORDER BY time_start");
     if(!$stmt){
         echo json_encode(array(
@@ -35,7 +35,7 @@ if(hash_equals($_SESSION['token'], $data['token'])){
         exit();
     }
 
-    // dynamically bind tags
+    // dynamically binds tags (since there could be 0, 1, 2, or 3 tags actively toggled)
     if(!empty($tags)){
         $paramString = 'sss';
         $paramString .= str_repeat('s', count($tags));
@@ -62,7 +62,7 @@ if(hash_equals($_SESSION['token'], $data['token'])){
             $row['shared_with'] = implode(',', $shared_with);
         }
 
-        // sanitize output
+        // sanitizes output
         $sanitizedRow = array();
         foreach ($row as $key => &$value) {
             $sanitizedRow[$key] = htmlentities($value);

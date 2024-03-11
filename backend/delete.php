@@ -14,7 +14,7 @@
     if(hash_equals($_SESSION['token'], $data['token'])){
         $event_id = htmlentities($data['event_id']);
         
-        // check if the logged in user is the event's creator --> allow deletion, otherwise exit (they shouldn't make it this far, but ensure NO deletion if they do)
+        // checks if the logged in user is the event's creator --> allow deletion, otherwise exit (they shouldn't make it this far, but ensure NO deletion if they do)
         $stmt = $mysqli->prepare("SELECT creator FROM events WHERE event_id = ?");
         if(!$stmt){
             echo json_encode(array(
@@ -40,7 +40,7 @@
 
         // logged in user is original event creator --> carry on deleting
 
-        // grab count of events
+        // grabs count of events
         $stmt = $mysqli->prepare("DELETE FROM events WHERE creator = ? AND event_id = ?");
         if(!$stmt){
             echo json_encode(array(

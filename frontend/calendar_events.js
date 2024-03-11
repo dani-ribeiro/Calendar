@@ -3,6 +3,9 @@
         - Update/Load Calendar View
         - Count Events
         - Display Event Details
+        - Add/Edit/Delete/Share Calendar Events
+        - Toggle Calendar Tags
+        - Search Calendar Events
         - ...
 */
 
@@ -21,37 +24,40 @@ monthDict = {
     11: "December"
 }
 
-// toggle event listeners for calendar tag views
+// toggles event listeners for calendar tag views
 const allTags = document.querySelectorAll(".tagsDropdown .dropdown-item");
 allTags.forEach(tag => {
-    tag.addEventListener("click", function() {
+    tag.addEventListener("click", function(){
         tag.classList.toggle("active");
         updateCalendar(currentMonth);
         displayPage('#page1-calendar');
     });
 });
 
+// returns a list of actively toggled (red) tags
 function getActiveTags(){
     let activeTags = [];
     allTags.forEach(tag => {
-        if (tag.classList.contains('active')) {
+        if(tag.classList.contains('active')){
             activeTags.push(tag.textContent);
         }
     });
     return activeTags;
 }
 
+// pre: user clicks submit button on the search events form
+// post: asynchronously fetches all event results during the specified time interval, or returns a warning/error for an invalid interval.
 async function search(submit, activeTags = []){
     const form = document.getElementById("search-form");
     submit.preventDefault(); // prevent default form refresh upon submission
-    if(form.checkValidity()) {
+    if(form.checkValidity()){
         let startDate = document.getElementById("startDate").value + ' 00:00:00';
         let endDate = document.getElementById("endDate").value + ' 00:00:00';
 
         // filter form input
 
-        // validate end date is after start date
-        if (new Date(endDate) < new Date(startDate)) {
+        // validates end date is after start date
+        if(new Date(endDate) < new Date(startDate)){
             $('#warning-search h6').html('Invalid Search Interval');
             $('#warning-search').show();
             return;
@@ -65,7 +71,7 @@ async function search(submit, activeTags = []){
                     'token': currentToken
                     };
 
-        fetch("backend/search.php", {
+        fetch("backend/search.php",{
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {'content-type': 'application/json'}
@@ -83,7 +89,7 @@ async function search(submit, activeTags = []){
                     $('#searchCollapse').collapse('hide');
                     document.getElementById("search-form").reset();
 
-                    // fill search results
+                    // fills search results
                     data.events.forEach(event => {
                         const title = event['title'];
                         const start_time = new Date(event['time_start']);
@@ -104,7 +110,7 @@ async function search(submit, activeTags = []){
                         // combines formattedDate (Month DD, YYYY) + formattedTime (HH:MM AM/PM) = Month DD, YYYY ∙ HH:MM AM/PM
                         const resultDateDisplay = `${formattedDate} ∙ ${formattedTime}`;
 
-                        // create list item
+                        // creates list item for display
                         const listItem = document.createElement('li');
                         $(listItem).addClass('list-group-item');
                         const resultTitle = document.createElement('p');
@@ -138,11 +144,13 @@ async function search(submit, activeTags = []){
     }
 }
 
+// pre: user clicks submit button on the add event form
+// post: asynchronously adds event to the database and updates the calendar view, otherwise returns a warning error (invalid input, etc)
 async function addEvent(event, date){
     // handle add event form submission
     const form = document.getElementById("addEventForm");
     event.preventDefault(); // prevent default form refresh upon submission
-    if(form.checkValidity()) {
+    if(form.checkValidity()){
         const title = document.getElementById("addEvent-title").value;
         let timeStart = document.getElementById("addEvent-timeSTART").value;
         let timeEnd = document.getElementById("addEvent-timeEND").value;                  // optional
@@ -155,7 +163,7 @@ async function addEvent(event, date){
         const maxTitleLength = 30;
 
         const titleRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
-        if (!titleRegex.test(title) || title.length > maxTitleLength) {
+        if(!titleRegex.test(title) || title.length > maxTitleLength){
             $('#warning-add h6').html('Invalid Title<br>Maximum Character Limit: 30');
             $('#warning-add').show();
         }
@@ -166,7 +174,7 @@ async function addEvent(event, date){
             timeEnd = String(date + ' ' + timeEnd + ':00');
 
             // validate end time is after or the same as start time
-            if (new Date(timeEnd) < new Date(timeStart)) {
+            if(new Date(timeEnd) < new Date(timeStart)){
                 $('#warning-add h6').html('Invalid Event Duration');
                 $('#warning-add').show();
                 return;
@@ -176,7 +184,7 @@ async function addEvent(event, date){
         // if a guest list was provided, pass it through a regex and split it.
         if(guests){
             const guestListRegex = /^[A-Za-z0-9]+(?:, [A-Za-z0-9]+)*$/;
-            if (!guestListRegex.test(guests)) {
+            if(!guestListRegex.test(guests)){
                 $('#warning-add h6').html('Improper Formatting<br>Please list guest usernames as comma separated values (Ex: Just, Like, This)');
                 $('#warning-add').show();
                 return;
@@ -186,7 +194,7 @@ async function addEvent(event, date){
 
         if(location){
             const locationRegex = /^[\w\d\s',.\-\(\)]+$/;
-            if (!locationRegex.test(location)) {
+            if(!locationRegex.test(location)){
                 $('#warning-add h6').html('Invalid Location');
                 $('#warning-add').show();
                 return;
@@ -195,7 +203,7 @@ async function addEvent(event, date){
 
         if(description){
             const descriptionRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
-            if (!descriptionRegex.test(description)) {
+            if(!descriptionRegex.test(description)){
                 $('#warning-add h6').html('Invalid Description');
                 $('#warning-add').show();
                 return;
@@ -247,7 +255,9 @@ async function addEvent(event, date){
     }
 }
 
-// delete only events that the logged in user has created. DO NOT delete events that were shared with the creator (i.e from a friend)
+// pre: user clicks delete event button
+// post: asynchronously deletes event from the database and updates the calendar view
+// only deletes events that the logged in user has created. Does NOT delete events that were shared with the creator (i.e. from a friend)
 async function deleteEvent(event_id){
     const currentToken = await getToken();
     const data = {'event_id': event_id,
@@ -270,12 +280,14 @@ async function deleteEvent(event_id){
     .catch(err => console.error(err));
 }
 
-// edit only events that the logged in user has created. DO NOT edit events that were shared with the creator (i.e from a friend)
+// pre: user clicks submit button on the edit event form
+// post: asynchronously updates the event in the database and updates the calendar view, otherwise returns a warning error (invalid input, etc)
+// only edit events that the logged in user has created. Does NOT edit events that were shared with the creator (i.e. from a friend)
 async function editEvent(submit, date, event_id){
     // handle edit event form submission
     const form = document.getElementById("editEventForm");
     submit.preventDefault();     // prevent default form refresh upon submission
-    if(form.checkValidity()) {
+    if(form.checkValidity()){
         const title = document.getElementById("editEvent-title").value;
         let timeStart = document.getElementById("editEvent-timeSTART").value;
         let timeEnd = document.getElementById("editEvent-timeEND").value;                  // optional
@@ -288,7 +300,7 @@ async function editEvent(submit, date, event_id){
         const maxTitleLength = 30;
 
         const titleRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
-        if (!titleRegex.test(title) || title.length > maxTitleLength) {
+        if(!titleRegex.test(title) || title.length > maxTitleLength){
             $('#warning-edit h6').html('Invalid Title<br>Maximum Character Limit: 30');
             $('#warning-edit').show();
         }
@@ -300,7 +312,7 @@ async function editEvent(submit, date, event_id){
             timeEnd = String(dateNoTime + ' ' + timeEnd + ':00');
 
             // validate end time is after or the same as start time
-            if (new Date(timeEnd) < new Date(timeStart)) {
+            if(new Date(timeEnd) < new Date(timeStart)){
                 $('#warning-edit h6').html('Invalid Event Duration');
                 $('#warning-edit').show();
                 return;
@@ -310,7 +322,7 @@ async function editEvent(submit, date, event_id){
         // if a guest list was provided, pass it through a regex and split it.
         if(guests){
             const guestListRegex = /^[A-Za-z0-9]+(?:, [A-Za-z0-9]+)*$/;
-            if (!guestListRegex.test(guests)) {
+            if(!guestListRegex.test(guests)){
                 $('#warning-edit h6').html('Improper Formatting<br>Please list guest usernames as comma separated values (Ex: Just, Like, This)');
                 $('#warning-edit').show();
                 return;
@@ -320,7 +332,7 @@ async function editEvent(submit, date, event_id){
 
         if(location){
             const locationRegex = /^[\w\d\s',.\-\(\)]+$/;
-            if (!locationRegex.test(location)) {
+            if(!locationRegex.test(location)){
                 $('#warning-edit h6').html('Invalid Location');
                 $('#warning-edit').show();
                 return;
@@ -329,7 +341,7 @@ async function editEvent(submit, date, event_id){
 
         if(description){
             const descriptionRegex = /^[\w\d\s.,'";:!?()$%&=/+-]*$/;
-            if (!descriptionRegex.test(description)) {
+            if(!descriptionRegex.test(description)){
                 $('#warning-edit h6').html('Invalid Description');
                 $('#warning-edit').show();
                 return;
@@ -382,9 +394,11 @@ async function editEvent(submit, date, event_id){
     }
 }
 
-// select & display all details for a specific event
+
+// pre: user selects an event to view
+// post: displays the event details for a specific event
 function eventDetails(event, username){
-    // reset event listeners from previous dates
+    // resets event listeners from previous dates
     $('#deleteEvent').off('click');
     $('#editEventSubmit').off('click');
 
@@ -510,7 +524,10 @@ function eventDetails(event, username){
     eventGuests.textContent = event['shared_with'].split(',').join(', ');
 }
 
-// select & display all events on a certain date associated with the logged in user
+
+// pre: user clicks on a day to view or add events on, and user has tags toggled (could have 0 tags toggled)
+// post: asynchronously fetches all events associated with the logged-in user (user-created or user-shared with events) for the specific date 
+//       requested and only those associated with the toggled tags
 async function loadEvents(username, date, activeTags = []){
     const currentToken = await getToken();
 
@@ -578,7 +595,7 @@ async function loadEvents(username, date, activeTags = []){
                 listItem.setAttribute("data-bs-target", "#displayEventModal");
                 listItem.innerHTML = `<strong>${formatted_time}</strong> ${title}`;
 
-                $(listItem).click(function() {
+                $(listItem).click(function(){
                     // unhide the optional elements
                     $('#eventDescription').show();
                     $('#eventLocation').show();
@@ -597,14 +614,15 @@ async function loadEvents(username, date, activeTags = []){
 
 // reformats date for MySQL query processing: 
 // Thu Feb 01 2024 00:00:00 GMT-0600 (Central Standard Time) --> 2024-02-01
-function formatDate(date) {
+function formatDate(date){
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');     // [+1 bc months are 0-based in calendar_library.js], [padStart adds a 0 to the beginning if the month is single digit]
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
 
-// count & display number of events for a specific date (cell) in the current calendar view
+// pre: user interacts with the calendar, resulting in an update
+// post: asynchronously fetches the event counts for each date in the current month (given the currently toggled tags) from the database and updates the calendar view
 function countEvents(date, cell, username, activeTags = []){
     const formattedDate = formatDate(date);
     const data = {'username' : username,
@@ -632,7 +650,7 @@ function countEvents(date, cell, username, activeTags = []){
                     cell.innerHTML = `<strong>${day}</strong>
                                     <p class="numEvents">${numEvents} Events</p>`;
                 }
-                $(cell).click(function() {
+                $(cell).click(function(){
                     // update the event modal with the clicked day (number: 0-31) and day of the week (abbreviation: SUN-SAT)
                     document.getElementById('eventDay').textContent = day;
                     const colIndex = $(cell).index();
@@ -648,7 +666,7 @@ function countEvents(date, cell, username, activeTags = []){
 }
 
 // loads calendar grid with days positioned accordingly
-async function loadCalendar(month) {
+async function loadCalendar(month){
     //check if user is logged in (to be used below)     usernameResult = <username> if logged in, otherwise it stores false
     const usernameResult = await checkLoggedIn();
     const tableBody = document.querySelector('tbody');
@@ -671,7 +689,7 @@ async function loadCalendar(month) {
             cell.id = '';
 
             // check if current day is in the current month --> add it to the calendar view!        else: don't. empty cell.
-            if (date.getMonth() === month.month) {
+            if(date.getMonth() === month.month){
                 cell.innerHTML = `<strong>${date.getDate()}</strong>
                                     <p class="numEvents"></p>`;
                 cell.id = `cell${date.getDate()}`;
@@ -692,7 +710,7 @@ async function loadCalendar(month) {
     });
 }
 
-// update calendar view to today's month
+// updates calendar view to today's month
 function today(){
     const today = new Date();
     const todayMonth = today.getMonth();
@@ -701,23 +719,25 @@ function today(){
     updateCalendar(currentMonth);
 }
 
-// update calendar view to the next month
-function nextMonth() {
+// updates calendar view to the next month
+function nextMonth(){
     currentMonth = currentMonth.nextMonth();
     updateCalendar(currentMonth);
 }
 
-// update calendar view to the previous month
-function previousMonth() {
+// updates calendar view to the previous month
+function previousMonth(){
     currentMonth = currentMonth.prevMonth();
     updateCalendar(currentMonth);
 }
 
-// update <MONTH YEAR> header & load the respective month's calendar view
-function updateCalendar(month) {
+// updates <MONTH YEAR> header & load the respective month's calendar view
+function updateCalendar(month){
     document.getElementById('month').innerText = monthDict[month.month] + " " + month.year;
     loadCalendar(month);
 }
+
+// additional event listeners
 
 $('#previous-month').click(function(){
     previousMonth();
