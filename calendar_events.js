@@ -31,6 +31,113 @@ allTags.forEach(tag => {
     });
 });
 
+function getActiveTags(){
+    let activeTags = [];
+    allTags.forEach(tag => {
+        if (tag.classList.contains('active')) {
+            activeTags.push(tag.textContent);
+        }
+    });
+    return activeTags;
+}
+
+async function search(submit, activeTags = []){
+    const form = document.getElementById("search-form");
+    submit.preventDefault(); // prevent default form refresh upon submission
+    if(form.checkValidity()) {
+        let startDate = document.getElementById("startDate").value + ' 00:00:00';
+        let endDate = document.getElementById("endDate").value + ' 00:00:00';
+
+        // filter form input
+
+        // validate end date is after start date
+        if (new Date(endDate) < new Date(startDate)) {
+            $('#warning-search h6').html('Invalid Search Interval');
+            $('#warning-search').show();
+            return;
+        }
+
+        const currentToken = await getToken();
+
+        const data = {'timeStart': startDate,
+                    'timeEnd': endDate,
+                    'tags': activeTags,
+                    'token': currentToken
+                    };
+
+        fetch("search.php", {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {'content-type': 'application/json'}
+            })
+            .then(response => {
+                if(!response.ok){
+                    throw new Error("ERROR: Search - Unsuccessful");
+                }else{
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if(data.success){
+                    // successful search: close accordian, reset form --> open modal, display search results
+                    $('#searchCollapse').collapse('hide');
+                    document.getElementById("search-form").reset();
+
+                    // fill search results
+                    data.events.forEach(event => {
+                        const title = event['title'];
+                        const start_time = new Date(event['time_start']);
+
+                        // formats the string from date to Month DD, YYYY ∙ HH:MM AM/PM
+                        const formattedDate = start_time.toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric'
+                        });
+                
+                        const formattedTime = start_time.toLocaleTimeString('en-US', {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                
+                        // combines formattedDate (Month DD, YYYY) + formattedTime (HH:MM AM/PM) = Month DD, YYYY ∙ HH:MM AM/PM
+                        const resultDateDisplay = `${formattedDate} ∙ ${formattedTime}`;
+
+                        // create list item
+                        const listItem = document.createElement('li');
+                        $(listItem).addClass('list-group-item');
+                        const resultTitle = document.createElement('p');
+                        $(resultTitle).addClass('result-title');
+                        $(resultTitle).text(title);
+                        const resultDate = document.createElement('p');
+                        $(resultDate).addClass('result-date');
+                        $(resultDate).text(resultDateDisplay);
+        
+                        listItem.appendChild(resultTitle);
+                        listItem.appendChild(resultDate);
+
+                        $('#resultsList').append(listItem);
+                    });
+
+
+                    // display search results
+                    $('#searchResultsModal').modal('show');
+                }else if(data.error === 'Invalid'){
+                    // unsuccessful search: event interval issue
+                    $('#warning-search h6').html('Invalid Search Interval');
+                    $('#warning-search').show();
+                }else{
+                    console.log(data['error']);
+                    displayPage('#page1-calendar');
+                }
+            })
+            .catch(err => console.error(err));
+    }else{
+        form.reportValidity();
+    }
+}
+
 async function addEvent(event, date){
     // handle add event form submission
     const form = document.getElementById("addEventForm");
@@ -53,7 +160,7 @@ async function addEvent(event, date){
             $('#warning-add').show();
         }
 
-        // [date = YY-MM-DD] + [timeStart = HH:MM] = YY-MM-DD HH:MM:00
+        // [date = YYYY-MM-DD] + [timeStart = HH:MM] = YYYY-MM-DD HH:MM:00
         timeStart = String(date + ' ' + timeStart + ':00');
         if(timeEnd){
             timeEnd = String(date + ' ' + timeEnd + ':00');
@@ -404,10 +511,13 @@ function eventDetails(event, username){
 }
 
 // select & display all events on a certain date associated with the logged in user
-function loadEvents(username, date, activeTags = []){
+async function loadEvents(username, date, activeTags = []){
+    const currentToken = await getToken();
+
     const data = {'username' : username,
                     'date': date,
-                    'tags': activeTags
+                    'tags': activeTags,
+                    'token': currentToken
                     };
     fetch("fetch_events.php", {
         method: 'POST',
@@ -572,12 +682,7 @@ async function loadCalendar(month) {
                     cell.setAttribute("data-bs-target", "#events");
 
                     // get the user's toggled tags
-                    let activeTags = [];
-                    allTags.forEach(tag => {
-                        if (tag.classList.contains('active')) {
-                            activeTags.push(tag.textContent);
-                        }
-                    });
+                    let activeTags = getActiveTags();
                     countEvents(date, cell, usernameResult, activeTags);
                 }
             }
@@ -632,13 +737,26 @@ $('#editEvent').click(function(){
     $('#warning-edit').hide();
 })
 
-$('#addEventModal').on('hidden.bs.modal', function() {
+$('#addEventModal').on('hidden.bs.modal', function(){
     const addEventForm = document.getElementById("addEventForm");
     addEventForm.reset();
 });
 
-$('#editEventModal').on('hidden.bs.modal', function() {
+$('#editEventModal').on('hidden.bs.modal', function(){
     const editEventForm = document.getElementById("editEventForm");
     editEventForm.reset();
     $('#editEventModal').off('show.bs.modal');
+});
+
+$('#searchCollapse').on('show.bs.collapse', function(){
+    $('#warning-search').hide();
+});
+
+$('#searchSubmit').click(function(event){
+    let activeTags = getActiveTags();
+    search(event, activeTags);
+});
+
+$('#searchResultsModal').on('hidden.bs.modal', function(){
+    $('#resultsList').html('');
 });

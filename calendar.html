@@ -34,15 +34,7 @@
                     </div>
                 </div>
                 <!-- Display this section if user is logged in -->
-                <div id="registered-user-dropdown">
-                    <div class="nav-item dropdown-center" id="tagsHolder">
-                        <button id="calendarTags" class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">My Calendar Tags</button>
-                          <ul class="dropdown-menu tagsDropdown">
-                              <li><a id='workTag' class="dropdown-item">Work</a></li>
-                              <li><a id='personalTag' class="dropdown-item">Personal</a></li>
-                              <li><a id='socialTag' class="dropdown-item">Social</a></li>
-                          </ul>
-                    </div>
+                <div id="registered-user-dropdown" class="registered-user-view">
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">username</a>
@@ -73,182 +65,130 @@
         </nav>
 
         <!-- Calendar -->
-        <table class="table table-bordered">
-            <thead>
-                <tr id='daysOfWeek'>
-                <th scope="col">SUN</th>
-                <th scope="col">MON</th>
-                <th scope="col">TUE</th>
-                <th scope="col">WED</th>
-                <th scope="col">THU</th>
-                <th scope="col">FRI</th>
-                <th scope="col">SAT</th>
-                </tr>
-            </thead>
-            <!-- Table Body will be populated using JS below -->
-            <tbody></tbody>
-        </table>
-
-        <!-- Events Modal -->
-        <div class="modal fade" id="events">
-            <div class="modal-dialog modal-sm modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        <h1 id='eventDayAbbreviated' class="modal-title fs-5">MON</h1>
-                        <h2 id='eventDay'>01</h2>
-                    </div>
-                    <div class="modal-body">
-                        <button id="addEvent" type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">Add Event</button>
-                        <ul id="eventsList">
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Event Modal -->
-        <div class="modal fade" id="addEventModal">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        <!-- warning -->
-                        <div id="warning-add">
-                            <h6>Warning!</h6>
+        <div class="main">
+            <!-- Sidebar Navigation (Calendar Tags + Search) -->
+            <nav class="nav flex-column bg-body-tertiary registered-user-view" id="sideNav">
+                <div class="accordion" id="leftAccordian">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="tagsHolder">
+                            <button id='tagsButton' class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#calendarTags">Calendar Tags</button>
+                        </h2>
+                        <div id="calendarTags" class="accordion-collapse collapse" data-bs-parent="#leftAccordian">
+                            <div class="accordion-body" id="calendarTagsBody">
+                                <ul class="tagsDropdown">
+                                    <li><a id='workTag' class="dropdown-item">Work</a></li>
+                                    <li><a id='personalTag' class="dropdown-item">Personal</a></li>
+                                    <li><a id='socialTag' class="dropdown-item">Social</a></li>
+                                </ul>
+                            </div>
                         </div>
-                        <!-- Add Event Form  -->
-                        <form id="addEventForm">
-                            <!-- Title Field -->
-                            <div class="row g-3">
-                                <div class="col-auto">
-                                <label for="addEvent-title" class="col-form-label">Title</label>
-                                </div>
-                                <div class="col-9">
-                                <input type="text" id="addEvent-title" class="form-control" placeholder="Add Title" maxLength='30' required>
-                                </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="searchToggle">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#searchCollapse">
+                                <img src="static/search.svg" alt="Search" id="searchImg">Search
+                            </button>
+                        </h2>
+                        <div id="searchCollapse" class="accordion-collapse collapse" data-bs-parent="#leftAccordian">
+                            <div class="accordion-body" id="searchBody">
+                                <form id="search-form">
+                                    <div id="warning-search">
+                                        <h6>Warning!</h6>
+                                    </div>
+                                    <h5>Date</h5>
+                                    <label class="form-label">From
+                                        <input id='startDate' class="form-control form-control-sm" type='date' required>
+                                    </label>
+                                    <label class="form-label">To
+                                        <input id='endDate' class="form-control form-control-sm" type='date' required>
+                                    </label>
+                                    <button id="searchSubmit" type="submit" class="btn btn-sm btn-primary">Search</button>
+                                </form>
                             </div>
-                            <!-- Date/Time Field -->
-                            <div class="row g-3">
-                                <div class="col-auto addEventTime">
-                                    <img src="static/clock.svg" alt="Schedule">
-                                    <p id='addEventFormDate' class="col-form-label">WEEKDAY, MONTH DAY ∙
-                                        <input type="time" id="addEvent-timeSTART" class="form-control-sm" required>
-                                        -
-                                        <input type="time" id="addEvent-timeEND" class="form-control-sm"> (Optional)
-                                    </p>
-                                </div>
-                            </div>
-                            <!-- Add Guests Field -->
-                            <div class="row g-3">
-                                <div class="col-auto">
-                                    <img src="static/guests.svg" alt="Guests">
-                                </div>
-                                <div class="col-9 addEventGuest">
-                                    <input type="text" id="addEvent-guests" class="form-control" placeholder="Add Guests (Comma Separated)">
-                                </div>
-                            </div>
-                            <!-- Location Field -->
-                            <div class="row g-3">
-                                <div class="col-auto">
-                                    <img src="static/location.svg" alt="Location">
-                                </div>
-                                <div class="col-9 addEventLocation">
-                                    <input type="text" id="addEvent-location" class="form-control" placeholder="Add Location">
-                                </div>
-                            </div>
-                            <!-- Description Field -->
-                            <div class="row g-3">
-                                <div class="col-auto">
-                                    <img src="static/description.svg" alt="Description">
-                                </div>
-                                <div class="col-9 addEventDescription">
-                                    <input type="text" id="addEvent-description" class="form-control" placeholder="Add Description">
-                                </div>
-                            </div>
-                            <!-- Tag Field -->
-                            <div id='tag-field-add' class="row g-3">
-                                <div class="col-auto">
-                                    <img src="static/tag.svg" alt="Tag">
-                                </div>
-                                <div class="form-check form-check-inline col-2">
-                                    <label class="form-check-label"><input class="form-check-input" type="radio" name="addTagOptions" id="addTag-work" value="Work">Work</label>
-                                </div>
-                                <div class="form-check form-check-inline col-2">
-                                    <label class="form-check-label"><input class="form-check-input" type="radio" name="addTagOptions" id="addTag-personal" value="Personal">Personal</label>
-                                </div>
-                                <div class="form-check form-check-inline col-2">
-                                    <label class="form-check-label"><input class="form-check-input" type="radio" name="addTagOptions" id="addTag-social" value="Social">Social</label>
-                                </div>
-                            </div>
-                            <div class="container">
-                                <button id="addEventSubmit" type="submit" class="btn btn-sm btn-primary">Add Event</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-            <div class="modal fade" id="displayEventModal">
-                <div class="modal-dialog modal-dialog-centered">
+            </nav>
+
+            <!-- Search Results Modal -->
+            <div class="modal fade" id="searchResultsModal">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <button id='deleteEvent' type="button" class="btn">
-                                <img src="static/trash.svg" alt="Delete Event">
-                            </button>
-                            <button id='editEvent' type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editEventModal">
-                                <img src="static/edit.svg" alt="Edit Event">
-                            </button>
-                            <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"></button>
-                            
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h1 class="modal-title fs-5">Results</h1>
                         </div>
-                        <div class="modal-body" id="eventCard">
-                            <h1 class="modal-title fs-5" id="eventTitle">Title</h1>
-                            <p id="eventDate">Monday, January 01 ∙ 12:00 AM - 11:59 PM</p>
-                            <p id="eventDescription">Description</p>
-                            <p id="eventLocation">Location</p>
-                            <div id="eventGuestContainer">
-                                <img src="static/guests.svg" alt="Guests">
-                                <p id="eventGuests">Guest1, Guest2, Guest3</p>
-                            </div>
-                            <div id="eventTagContainer">
-                                <img src="static/tag.svg" alt="Tag">
-                                <p id="eventTag">Tag</p>
-                            </div>
+                        <div class="modal-body">
+                            <ul id="resultsList" class='list-group'>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-        <!-- Edit Event Modal -->
-        <div class="modal fade" id="editEventModal">
+            <table class="table table-bordered">
+                <thead>
+                    <tr id='daysOfWeek'>
+                    <th scope="col">SUN</th>
+                    <th scope="col">MON</th>
+                    <th scope="col">TUE</th>
+                    <th scope="col">WED</th>
+                    <th scope="col">THU</th>
+                    <th scope="col">FRI</th>
+                    <th scope="col">SAT</th>
+                    </tr>
+                </thead>
+                <!-- Table Body will be populated using JS below -->
+                <tbody></tbody>
+            </table>
+
+            <!-- Events Modal -->
+            <div class="modal fade" id="events">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <h1 id='eventDayAbbreviated' class="modal-title fs-5">MON</h1>
+                            <h2 id='eventDay'>01</h2>
+                        </div>
+                        <div class="modal-body">
+                            <button id="addEvent" type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addEventModal">Add Event</button>
+                            <ul id="eventsList">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Event Modal -->
+            <div class="modal fade" id="addEventModal">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body">
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             <!-- warning -->
-                            <div id="warning-edit">
+                            <div id="warning-add">
                                 <h6>Warning!</h6>
                             </div>
                             <!-- Add Event Form  -->
-                            <form id="editEventForm">
+                            <form id="addEventForm">
                                 <!-- Title Field -->
                                 <div class="row g-3">
                                     <div class="col-auto">
-                                    <label for="editEvent-title" class="col-form-label">Title</label>
+                                    <label for="addEvent-title" class="col-form-label">Title</label>
                                     </div>
                                     <div class="col-9">
-                                    <input type="text" id="editEvent-title" class="form-control" placeholder="Add Title" maxLength='30' required>
+                                    <input type="text" id="addEvent-title" class="form-control" placeholder="Add Title" maxLength='30' required>
                                     </div>
                                 </div>
                                 <!-- Date/Time Field -->
                                 <div class="row g-3">
                                     <div class="col-auto addEventTime">
                                         <img src="static/clock.svg" alt="Schedule">
-                                        <p id='editEventFormDate' class="col-form-label">WEEKDAY, MONTH DAY ∙
-                                            <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
+                                        <p id='addEventFormDate' class="col-form-label">WEEKDAY, MONTH DAY ∙
+                                            <input type="time" id="addEvent-timeSTART" class="form-control-sm" required>
                                             -
-                                            <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)
+                                            <input type="time" id="addEvent-timeEND" class="form-control-sm"> (Optional)
                                         </p>
                                     </div>
                                 </div>
@@ -258,7 +198,7 @@
                                         <img src="static/guests.svg" alt="Guests">
                                     </div>
                                     <div class="col-9 addEventGuest">
-                                        <input type="text" id="editEvent-guests" class="form-control" placeholder="Add Guests (Comma Separated)">
+                                        <input type="text" id="addEvent-guests" class="form-control" placeholder="Add Guests (Comma Separated)">
                                     </div>
                                 </div>
                                 <!-- Location Field -->
@@ -267,7 +207,7 @@
                                         <img src="static/location.svg" alt="Location">
                                     </div>
                                     <div class="col-9 addEventLocation">
-                                        <input type="text" id="editEvent-location" class="form-control" placeholder="Add Location">
+                                        <input type="text" id="addEvent-location" class="form-control" placeholder="Add Location">
                                     </div>
                                 </div>
                                 <!-- Description Field -->
@@ -276,28 +216,142 @@
                                         <img src="static/description.svg" alt="Description">
                                     </div>
                                     <div class="col-9 addEventDescription">
-                                        <input type="text" id="editEvent-description" class="form-control" placeholder="Add Description">
+                                        <input type="text" id="addEvent-description" class="form-control" placeholder="Add Description">
                                     </div>
                                 </div>
                                 <!-- Tag Field -->
-                                <div id='tag-field-edit' class="row g-3">
+                                <div id='tag-field-add' class="row g-3">
                                     <div class="col-auto">
                                         <img src="static/tag.svg" alt="Tag">
                                     </div>
                                     <div class="form-check form-check-inline col-2">
-                                        <label class="form-check-label"><input class="form-check-input" type="radio" name="editTagOptions" id="editTag-work" value="Work">Work</label>
+                                        <label class="form-check-label"><input class="form-check-input" type="radio" name="addTagOptions" id="addTag-work" value="Work">Work</label>
                                     </div>
                                     <div class="form-check form-check-inline col-2">
-                                        <label class="form-check-label"><input class="form-check-input" type="radio" name="editTagOptions" id="editTag-personal" value="Personal">Personal</label>
+                                        <label class="form-check-label"><input class="form-check-input" type="radio" name="addTagOptions" id="addTag-personal" value="Personal">Personal</label>
                                     </div>
                                     <div class="form-check form-check-inline col-2">
-                                        <label class="form-check-label"><input class="form-check-input" type="radio" name="editTagOptions" id="editTag-social" value="Social">Social</label>
+                                        <label class="form-check-label"><input class="form-check-input" type="radio" name="addTagOptions" id="addTag-social" value="Social">Social</label>
                                     </div>
                                 </div>
                                 <div class="container">
-                                    <button id="editEventSubmit" type="submit" class="btn btn-sm">Edit Event</button>
+                                    <button id="addEventSubmit" type="submit" class="btn btn-sm btn-primary">Add Event</button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="modal fade" id="displayEventModal">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button id='deleteEvent' type="button" class="btn">
+                                    <img src="static/trash.svg" alt="Delete Event">
+                                </button>
+                                <button id='editEvent' type="button" class="btn" data-bs-toggle="modal" data-bs-target="#editEventModal">
+                                    <img src="static/edit.svg" alt="Edit Event">
+                                </button>
+                                <button type="button" class="btn-close btn-close" data-bs-dismiss="modal"></button>
+                                
+                            </div>
+                            <div class="modal-body" id="eventCard">
+                                <h1 class="modal-title fs-5" id="eventTitle">Title</h1>
+                                <p id="eventDate">Monday, January 01 ∙ 12:00 AM - 11:59 PM</p>
+                                <p id="eventDescription">Description</p>
+                                <p id="eventLocation">Location</p>
+                                <div id="eventGuestContainer">
+                                    <img src="static/guests.svg" alt="Guests">
+                                    <p id="eventGuests">Guest1, Guest2, Guest3</p>
+                                </div>
+                                <div id="eventTagContainer">
+                                    <img src="static/tag.svg" alt="Tag">
+                                    <p id="eventTag">Tag</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Event Modal -->
+                <div class="modal fade" id="editEventModal">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                <!-- warning -->
+                                <div id="warning-edit">
+                                    <h6>Warning!</h6>
+                                </div>
+                                <!-- Add Event Form  -->
+                                <form id="editEventForm">
+                                    <!-- Title Field -->
+                                    <div class="row g-3">
+                                        <div class="col-auto">
+                                        <label for="editEvent-title" class="col-form-label">Title</label>
+                                        </div>
+                                        <div class="col-9">
+                                        <input type="text" id="editEvent-title" class="form-control" placeholder="Add Title" maxLength='30' required>
+                                        </div>
+                                    </div>
+                                    <!-- Date/Time Field -->
+                                    <div class="row g-3">
+                                        <div class="col-auto addEventTime">
+                                            <img src="static/clock.svg" alt="Schedule">
+                                            <p id='editEventFormDate' class="col-form-label">WEEKDAY, MONTH DAY ∙
+                                                <input type="time" id="editEvent-timeSTART" class="form-control-sm" required>
+                                                -
+                                                <input type="time" id="editEvent-timeEND" class="form-control-sm"> (Optional)
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <!-- Add Guests Field -->
+                                    <div class="row g-3">
+                                        <div class="col-auto">
+                                            <img src="static/guests.svg" alt="Guests">
+                                        </div>
+                                        <div class="col-9 addEventGuest">
+                                            <input type="text" id="editEvent-guests" class="form-control" placeholder="Add Guests (Comma Separated)">
+                                        </div>
+                                    </div>
+                                    <!-- Location Field -->
+                                    <div class="row g-3">
+                                        <div class="col-auto">
+                                            <img src="static/location.svg" alt="Location">
+                                        </div>
+                                        <div class="col-9 addEventLocation">
+                                            <input type="text" id="editEvent-location" class="form-control" placeholder="Add Location">
+                                        </div>
+                                    </div>
+                                    <!-- Description Field -->
+                                    <div class="row g-3">
+                                        <div class="col-auto">
+                                            <img src="static/description.svg" alt="Description">
+                                        </div>
+                                        <div class="col-9 addEventDescription">
+                                            <input type="text" id="editEvent-description" class="form-control" placeholder="Add Description">
+                                        </div>
+                                    </div>
+                                    <!-- Tag Field -->
+                                    <div id='tag-field-edit' class="row g-3">
+                                        <div class="col-auto">
+                                            <img src="static/tag.svg" alt="Tag">
+                                        </div>
+                                        <div class="form-check form-check-inline col-2">
+                                            <label class="form-check-label"><input class="form-check-input" type="radio" name="editTagOptions" id="editTag-work" value="Work">Work</label>
+                                        </div>
+                                        <div class="form-check form-check-inline col-2">
+                                            <label class="form-check-label"><input class="form-check-input" type="radio" name="editTagOptions" id="editTag-personal" value="Personal">Personal</label>
+                                        </div>
+                                        <div class="form-check form-check-inline col-2">
+                                            <label class="form-check-label"><input class="form-check-input" type="radio" name="editTagOptions" id="editTag-social" value="Social">Social</label>
+                                        </div>
+                                    </div>
+                                    <div class="container">
+                                        <button id="editEventSubmit" type="submit" class="btn btn-sm">Edit Event</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>

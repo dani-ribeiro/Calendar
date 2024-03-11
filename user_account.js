@@ -154,10 +154,10 @@ async function displayDashboard() {
         const loggedIn = await checkLoggedIn();
         if(loggedIn != false){
             $('#logged-out-user-dropdown').hide();
-            $('#registered-user-dropdown').show();
+            $('.registered-user-view').show();
             $('#registered-user-dropdown .nav-link.dropdown-toggle').text(loggedIn); // update username in dropdown
         }else{
-            $('#registered-user-dropdown').hide();
+            $('.registered-user-view').hide();
             $('#logged-out-user-dropdown').show();
         }
     }catch (err) {

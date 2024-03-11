@@ -36,8 +36,32 @@
     margin-left: 20px;
 }
 
+#page1-calendar .main {
+    display: flex;
+    flex-direction: row;
+}
+
+#page1-calendar #sideNav {
+    width: 180px;
+}
+
 #page1-calendar #tagsHolder {
-    margin-right: 200px;
+    margin-top: 40px;
+}
+
+#page1-calendar #searchImg {
+    margin-right: 10px;
+}
+
+#page1-calendar #search-form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#page1-calendar #searchSubmit {
+    margin-top: 10px;
 }
 
 #page1-calendar .tagsDropdown .dropdown-item.active {
@@ -46,12 +70,52 @@
 
 #page1-calendar .tagsDropdown {
     --bs-dropdown-link-active-bg: rgb(216,84,68);
+    list-style-type: none;
+    padding: 5px 0px;
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(216,84,68, 0.25);
+}
+
+.accordion-button:focus {
+    --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(216,84,68, 0.25);
+}
+
+#page1-calendar .tagsDropdown li a {
+    padding: 5px 10px;
+}
+
+#page1-calendar .tagsDropdown li:hover {
+    background-color: #f8f9fa;
+}
+
+#page1-calendar #workTag {
+    border-top-left-radius: .375rem;
+    border-top-right-radius: .375rem;
+}
+
+#page1-calendar #socialTag {
+    border-bottom-left-radius: .375rem;
+    border-bottom-right-radius: .375rem;
+}
+
+#page1-calendar #calendarTagsBody {
+    padding: 0px;
 }
 
 
 #page1-calendar #today,
-#page1-calendar #calendarTags {
+#page1-calendar #calendarTags,
+#page1-calendar #searchToggle {
     border: 1px solid rgb(218,220,224);
+    border-radius: .375rem;
+}
+
+#page1-calendar #leftAccordian {
+    margin-top: 20px;
 }
 
 #page1-calendar .user, .user > * {
@@ -251,6 +315,51 @@
             margin: auto 10px;
         }
 
+        /* Search Results Modal  */
+        #page1-calendar #searchResultsModal > .modal-sm {
+            max-width: 570px;
+        }
+
+        #page1-calendar #searchResultsModal > .modal-dialog > .modal-content > .modal-header {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #page1-calendar #searchResultsModal > .modal-dialog > .modal-content > .modal-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #page1-calendar #resultsList {
+            width: 100%;
+        }
+
+        #page1-calendar #resultsList .list-group-item {
+            border-radius: 5px;
+            padding: 5px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        #page1-calendar #resultsList > li:hover {
+            background-color: rgba(0, 0, 0, .075);
+        }
+
+        #page1-calendar #resultsList .list-group-item .result-title {
+            width: 50%;
+            margin: 0;
+            padding: 5px 10px 5px 5px;
+        }
+
+        #page1-calendar #resultsList .list-group-item .result-date {
+            width: 50%;
+            margin: 0;
+            border-left: 2px dashed black;
+            padding: 5px 5px 5px 10px;
+        }
+
 /* Login & Sign Up Page View */
 #page2-login .navbar,
 #page3-signup .navbar {
@@ -375,6 +484,7 @@
     font-size: 13.333px;
 }
 
+#page1-calendar #warning-search,
 #page1-calendar #warning-add,
 #page1-calendar #warning-edit,
 #page2-login #warning-login,

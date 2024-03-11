@@ -11,8 +11,30 @@ if (!isset($_SESSION['username'])) {
 
 $username = htmlentities($_SESSION['username']);
 $data = json_decode(file_get_contents('php://input'), true);
+
 if(hash_equals($_SESSION['token'], $data['token'])){
-    $date = htmlentities($data['date']);
+    $time_start = $data['timeStart'];
+    $time_end = $data['timeEnd'];
+
+    // filter input
+    if(!preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2} 00:00:00$/', $time_start)
+    ||  (!preg_match('/^[[0-9]{4}-[0-9]{2}-[0-9]{2} 00:00:00]*$/', $time_end))){
+        echo json_encode(array(
+            "success" => false,
+            "error" => "Invalid"
+        ));
+        exit;
+    }
+
+    // check if end date is before start date (invalid)
+    if (strtotime($time_end) < strtotime($time_start)) {
+        echo json_encode(array(
+            "success" => false,
+            "error" => "Invalid"  // Display: Invalid Search Interval
+        ));
+        exit;
+    }
+
     $tags = $data['tags'];
 
     // if there are active tags --> build query
@@ -26,7 +48,7 @@ if(hash_equals($_SESSION['token'], $data['token'])){
     }
 
     // grab events associated with the user
-    $stmt = $mysqli->prepare("SELECT event_id, title, time_start, time_end, description, location, shared_with, creator, tag FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND DATE(time_start) = ? $tagQuery ORDER BY time_start");
+    $stmt = $mysqli->prepare("SELECT title, time_start FROM events WHERE (creator = ? OR FIND_IN_SET(?, shared_with)) AND (time_start BETWEEN ? AND ?) $tagQuery ORDER BY time_start");
     if(!$stmt){
         echo json_encode(array(
             "success" => false,
@@ -37,12 +59,12 @@ if(hash_equals($_SESSION['token'], $data['token'])){
 
     // dynamically bind tags
     if(!empty($tags)){
-        $paramString = 'sss';
+        $paramString = 'ssss';
         $paramString .= str_repeat('s', count($tags));
-        $params = array_merge([$username, $username, $date], $tags);
+        $params = array_merge([$username, $username, $time_start, $time_end], $tags);
         $stmt->bind_param($paramString, ...$params);
     }else{
-        $stmt->bind_param('sss', $username, $username, $date);
+        $stmt->bind_param('ssss', $username, $username, $time_start, $time_end);
     }
     $stmt->execute();
     $events_result = $stmt->get_result();
@@ -50,18 +72,6 @@ if(hash_equals($_SESSION['token'], $data['token'])){
 
     $events = array();
     while ($row = $events_result->fetch_assoc()) {
-        // if the event creator is NOT the currently logged in user, then this is a shared_with event
-        // swap the guest list display such that the original creator is swapped with the logged in user
-        // ex: Daniel shared post with "Bob,Dylan" --> Then we want Bob's calendar to display "Daniel, Dylan" NOT "Bob, Dylan"
-        if ($row['creator'] !== $username && !empty($row['shared_with'])) {
-            $shared_with = explode(',', $row['shared_with']);
-            $swapIndex = array_search($username, $shared_with);
-            if ($swapIndex !== false) {
-                $shared_with[$swapIndex] = $row['creator'];
-            }
-            $row['shared_with'] = implode(',', $shared_with);
-        }
-
         // sanitize output
         $sanitizedRow = array();
         foreach ($row as $key => &$value) {
