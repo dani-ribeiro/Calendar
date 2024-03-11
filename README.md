@@ -1,5 +1,5 @@
 # CSE330
-# Author: Daniel Ribeiro d.d.ribeiro@wusl.edu, ID: 511148, GitHub: dani-ribeiro
+# Author: Daniel Ribeiro d.d.ribeiro@wustl.edu, ID: 511148, GitHub: dani-ribeiro
 
 ### Link:
 * Calendar: http://ec2-44-201-138-135.compute-1.amazonaws.com/~danielribeiro/Module5/group/calendar.html
