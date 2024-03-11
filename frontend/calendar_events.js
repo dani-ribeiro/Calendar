@@ -65,7 +65,7 @@ async function search(submit, activeTags = []){
                     'token': currentToken
                     };
 
-        fetch("search.php", {
+        fetch("backend/search.php", {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {'content-type': 'application/json'}
@@ -214,7 +214,7 @@ async function addEvent(event, date){
                     'token': currentToken
                     };
 
-        fetch("add_event.php", {
+        fetch("backend/add_event.php", {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {'content-type': 'application/json'}
@@ -253,7 +253,7 @@ async function deleteEvent(event_id){
     const data = {'event_id': event_id,
                   'token': currentToken
                  };
-    fetch("delete.php", {
+    fetch("backend/delete.php", {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {'content-type': 'application/json'}
@@ -349,7 +349,7 @@ async function editEvent(submit, date, event_id){
                     'token': currentToken
                     };
 
-        fetch("edit_event.php", {
+        fetch("backend/edit_event.php", {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {'content-type': 'application/json'}
@@ -519,7 +519,7 @@ async function loadEvents(username, date, activeTags = []){
                     'tags': activeTags,
                     'token': currentToken
                     };
-    fetch("fetch_events.php", {
+    fetch("backend/fetch_events.php", {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {'content-type': 'application/json'}
@@ -611,7 +611,7 @@ function countEvents(date, cell, username, activeTags = []){
                 'date': formattedDate,
                 'tags': activeTags
                 }
-    fetch("count_events.php", {
+    fetch("backend/count_events.php", {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {'content-type': 'application/json'}

@@ -7,7 +7,7 @@
 */
 // gets CSRF token if user is logged in
 function getToken(){
-    return fetch("check_session.php")
+    return fetch("backend/check_session.php")
     .then(response => {
         if(!response.ok){
             throw new Error("Unsuccessful get token");
@@ -36,7 +36,7 @@ function resetForms(){
 
 // check if user is logged in --> if user is logged in --> return username      else: return false (not logged in)
 function checkLoggedIn(){
-    return fetch("check_session.php")
+    return fetch("backend/check_session.php")
     .then(response => {
         if(!response.ok){
             throw new Error("Unsuccessful check logged in");
@@ -64,7 +64,7 @@ function signup(event) {
 
     event.preventDefault(); // prevent default form refresh upon submission
 
-    fetch("signup.php", {
+    fetch("backend/signup.php", {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {'content-type': 'application/json'}
@@ -104,7 +104,7 @@ function login(event) {
 
     event.preventDefault(); // prevent default form refresh upon submission
 
-    fetch("login.php", {
+    fetch("backend/login.php", {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {'content-type': 'application/json'}
@@ -132,7 +132,7 @@ function login(event) {
 
 // handle sign out
 function signout() {
-    fetch("signout.php", {
+    fetch("backend/signout.php", {
             method: 'POST',
             headers: {'content-type': 'application/json'}
         })

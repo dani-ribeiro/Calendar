@@ -289,7 +289,7 @@
         }
 
         #page1-calendar #displayEventModal > .modal-dialog > .modal-content > .modal-header {
-            background-image: url(static/event-background.png);
+            background-image: url(../static/event-background.png);
             height: 100px;
         }
 
@@ -412,7 +412,7 @@
     width: 50vw;
     height: 89.6vh;
     border-right: 3px solid black;
-    background-image: url(static/login.jpeg);
+    background-image: url(../static/login.jpeg);
     background-size: cover;
 }
 
@@ -420,7 +420,7 @@
     width: 50vw;
     height: 89.6vh;
     border-right: 3px solid black;
-    background-image: url(static/signup.jpeg);
+    background-image: url(../static/signup.jpeg);
     background-size: cover;
 }
 
